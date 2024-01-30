@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import '../cli_app.dart';
 import '../logger/logger.dart';
 import '../process/process.dart';
 
@@ -13,55 +12,96 @@ class MasonCli {
   late String projectPath;
   late String masonPath;
 
-  Future<void> init() async {
-    masonPath = Directory.current.path;
+  Future<String> init(String name, String path) async {
+    masonPath = path;
+    this.name = name;
     logger.i('intializing mason project in $masonPath');
     // await _createMasonDirectory();
     // await _activateMason();
-    // await _initMason();
+    await _initMason();
     await _makeProject();
     // await _addMasonBlock();
     logger.i('intialized mason project in $masonPath');
+    return projectPath;
   }
 
-  Future<void> _makeProject() async {
-    // mason add conference_app_toolkit --path ../conference_app_toolkit
-    logger.d('What should we call your project?');
-    final name = getAppName();
+  Future<void> _initMason() async {
     await processRun(
-      'mkdir',
-      arguments: ['$name'],
+      'mason',
+      arguments: ['init'],
       workingDirectory: masonPath,
       runInShell: true,
     );
-    final projectPath = '$masonPath/$name';
-    await processRun(
-      'mason',
-      arguments: [
-        'add',
-        'cli_app_brick',
-        '--path',
-        '../cli_app_brick',
-      ],
-      workingDirectory: projectPath,
-      runInShell: true,
-    );
+  }
 
-    // Convert data to JSON
-    final data = {
-      'name': name,
-      'app_domain': 'com.example.$name',
-    };
-    final jsonString = jsonEncode(data);
-    final jsonPath = '$projectPath/config.json';
-    // Open file for writing
-    final file = File(jsonPath);
-    await file.writeAsString(jsonString);
-// file.
-    // Close the file
-    // await file();
+//   Future<void> _makeProject() async {
+//     projectPath = await _createProjectDirectory();
+//     await processRun(
+//       'mason',
+//       arguments: [
+//         'add',
+//         'cli_app_brick',
+//         '--path',
+//         '../cli_app_brick',
+//       ],
+//       workingDirectory: projectPath,
+//       runInShell: true,
+//     );
 
-    print('JSON file saved successfully to: $jsonPath');
+//     // Convert data to JSON
+//     final data = {
+//       'name': name,
+//       'app_domain': 'com.example.$name',
+//     };
+//     final jsonString = jsonEncode(data);
+//     final jsonPath = '$projectPath/config.json';
+//     // Open file for writing
+//     final file = File(jsonPath);
+//     await file.writeAsString(jsonString);
+// // file.
+//     // Close the file
+//     // await file();
+
+//     print('JSON file saved successfully to: $jsonPath');
+//     // mason make conference_app_toolkit
+//     // await Process.start(
+//     //   'mason',
+//     //   [
+//     //     'make',
+//     //     'cli_app_brick',
+//     //     '-c',
+//     //     '$jsonPath',
+//     //   ],
+//     //   workingDirectory: projectPath,
+//     //   runInShell: true,
+//     // );
+//     await processRun(
+//       'mason',
+//       arguments: [
+//         'make',
+//         'cli_app_brick',
+//         '-c',
+//         '$jsonPath',
+//       ],
+//       workingDirectory: projectPath,
+//       runInShell: true,
+//     );
+//     await processRun(
+//       'flutter',
+//       arguments: [
+//         'packages',
+//         'get',
+//       ],
+//       workingDirectory: projectPath,
+//       runInShell: true,
+//     );
+//   }
+  Future<void> _makeProject() async {
+    projectPath = await _createProjectDirectory();
+    await _masonAdd();
+
+    final jsonPath = await _createConfigFile();
+
     // mason make conference_app_toolkit
     // await Process.start(
     //   'mason',
@@ -74,6 +114,49 @@ class MasonCli {
     //   workingDirectory: projectPath,
     //   runInShell: true,
     // );
+    await _masonMake(jsonPath);
+  }
+
+  Future<String> _createProjectDirectory() async {
+    await processRun(
+      'mkdir',
+      arguments: ['$name'],
+      workingDirectory: masonPath,
+      runInShell: true,
+    );
+    return '$masonPath/$name';
+  }
+
+  Future<void> _masonAdd() async {
+    await processRun(
+      'mason',
+      arguments: [
+        'add',
+        'cli_app_brick',
+        '--path',
+        '../cli_app_brick',
+      ],
+      workingDirectory: projectPath,
+      runInShell: true,
+    );
+  }
+
+  Future<String> _createConfigFile() async {
+    final data = {
+      'name': name,
+      'app_domain': 'com.example.$name',
+    };
+    final jsonString = jsonEncode(data);
+    final jsonPath = '$projectPath/config.json';
+    // Open file for writing
+    final file = File(jsonPath);
+    await file.writeAsString(jsonString);
+
+    print('JSON file saved successfully to: $jsonPath');
+    return jsonPath;
+  }
+
+  Future<void> _masonMake(String jsonPath) async {
     await processRun(
       'mason',
       arguments: [
@@ -86,7 +169,6 @@ class MasonCli {
       runInShell: true,
     );
   }
-
   // Future<void> init(String name, String appPath, String projectPath) async {
   //   this.name = name;
   //   this.appPath = appPath;
@@ -113,15 +195,6 @@ class MasonCli {
     await processRun(
       'dart',
       arguments: ['pub', 'global', 'activate', 'mason_cli'],
-      workingDirectory: masonPath,
-      runInShell: true,
-    );
-  }
-
-  Future<void> _initMason() async {
-    await processRun(
-      'mason',
-      arguments: ['init'],
       workingDirectory: masonPath,
       runInShell: true,
     );

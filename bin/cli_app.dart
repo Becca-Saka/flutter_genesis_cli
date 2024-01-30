@@ -2,16 +2,25 @@ import 'dart:io';
 
 import 'cli/mason_cli.dart';
 import 'logger/logger.dart';
+import 'process/process.dart';
 
 const String version = '0.0.1';
 
 Future<void> main() async {
   try {
-    // String name = _getAppName();
-    // String appPath = _getPath();
-    // final projectPath = await FlutterCli.instance.create(name, appPath);
+    String name = _getAppName();
+    String appPath = _getPath();
 
-    await MasonCli.instance.init();
+    final projectPath = await MasonCli.instance.init(name, appPath);
+    await processRun(
+      'flutter',
+      arguments: [
+        'packages',
+        'get',
+      ],
+      workingDirectory: projectPath,
+      runInShell: true,
+    );
     // await MasonCli.instance.init(name, appPath, projectPath);
     // await FlutterCli.instance.pubGet(['firebase_core', 'cloud_firestore']);
     // final projectPath = '${Directory.current.path}generated/adire';
@@ -21,7 +30,7 @@ Future<void> main() async {
   }
 }
 
-String getAppName() {
+String _getAppName() {
   print('What Should We call your project?');
   String? name = stdin.readLineSync();
   if (name == null || name.isEmpty) {
@@ -36,11 +45,11 @@ String getAppName() {
 }
 
 String _getPath() {
-  // print('Where is your project located?(press enter to use current path)');
-  // String? path = stdin.readLineSync();
-  // if (path == null || path.isEmpty) {
-  return Directory.current.path;
-  // } else {
-  //   return path;
-  // }
+  print('Where is your project located?(press enter to use current path)');
+  String? path = stdin.readLineSync();
+  if (path == null || path.isEmpty) {
+    return Directory.current.path;
+  } else {
+    return path;
+  }
 }

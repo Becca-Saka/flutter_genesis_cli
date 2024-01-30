@@ -7,6 +7,7 @@ Future<void> processRun(
   String executable, {
   List<String>? arguments,
   String? workingDirectory,
+  Map<String, String>? environment,
   bool runInShell = true,
 }) async {
   final dirResult = await Process.run(
@@ -14,6 +15,7 @@ Future<void> processRun(
     arguments ?? [],
     workingDirectory: workingDirectory,
     runInShell: runInShell,
+    environment: environment,
   );
   catchError(dirResult);
 }
@@ -23,7 +25,5 @@ void catchError(ProcessResult results) {
     logger.e('${results.stderr}');
     logger.e('EXIT CODE ${results.exitCode}');
     exit(1);
-  } else {
-    logger.e('${results.stderr}');
   }
 }
