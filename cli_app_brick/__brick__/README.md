@@ -1,4 +1,4 @@
-# adire_init_app
+# {{name}}
 
 A new Flutter project.
 
