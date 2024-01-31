@@ -194,7 +194,7 @@ packages:
     source: hosted
     version: "4.0.2"
   interact:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: interact
       sha256: b1abf79334bec42e58496a054cb7ee7ca74da6181f6a1fb6b134f1aa22bc4080

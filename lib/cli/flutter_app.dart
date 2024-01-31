@@ -1,6 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
+import 'package:cli_app/shared/validators.dart';
+
+import '../process/process.dart';
 import 'flutter_cli.dart';
 
 class FlutterAppDetails {
@@ -17,6 +20,7 @@ class FlutterAppDetails {
 class FlutterApp {
   FlutterApp._();
   static FlutterApp get instance => FlutterApp._();
+  AdireCliProcess process = AdireCliProcess();
   FlutterAppDetails init() {
     String name = getAppName();
     String path = getPath();
@@ -30,13 +34,11 @@ class FlutterApp {
   }
 
   String getAppName() {
-    print('What Should We call your project?');
-    String? name = stdin.readLineSync();
-    if (name == null || name.isEmpty) {
-      throw Exception('Name cannot be empty');
-    }
-    //to lower case
-
+    String? name = process.getInput(
+      prompt: 'What Should We call your project?',
+      validator: (val) => AppValidators.notNullAndNotEmpty(val,
+          message: 'Name cannot be empty'),
+    );
     name = name.toLowerCase();
     //replace space with underscore
     name = name.replaceAll(' ', '_');
@@ -44,9 +46,11 @@ class FlutterApp {
   }
 
   String getPath() {
-    print('Where is your project located?(press enter to use current path)');
-    String? path = stdin.readLineSync();
-    if (path == null || path.isEmpty) {
+    String path = process.getInput(
+      prompt: 'Where is your project located?(press enter to use current path)',
+      defaultValue: Directory.current.path,
+    );
+    if (path.isEmpty) {
       return Directory.current.path;
     } else {
       return path;
@@ -55,43 +59,17 @@ class FlutterApp {
 
   String getPackageName(String name) {
     print('What is the package name?(press enter to use com.example.$name)');
-    String? package = stdin.readLineSync();
-    if (package == null || package.isEmpty) {
-      return 'com.example.$name';
-    } else {
-      //TODO: check if it is a valid package name
+    String? package = process.getInput(
+      prompt: 'What is the package name?',
+      defaultValue: 'com.example.$name',
+      validator: AppValidators.isValidFlutterPackageName,
+    );
 
-      // if (!_isValidFlutterPackageName(name)) {
-      //   _clearProcess();
-      //   package = null;
-      //   print(
-      //       '$name is not a valid package name. Please enter a valid package name.');
-      //   return getPackageName(name);
-      // }
-      return package;
-    }
+    return package;
   }
 
-  void _clearProcess() {
-    if (Platform.isWindows) {
-      // not tested, I don't have Windows
-      // may not to work because 'cls' is an internal command of the Windows shell
-      // not an executeable
-      print(Process.runSync("cls", [], runInShell: true).stdout);
-    } else {
-      print(Process.runSync("clear", [], runInShell: true).stdout);
-    }
-  }
-
-  bool _isValidFlutterPackageName(String packageName) {
-    // Check if the package name follows the specified format
-    RegExp validPackagePattern =
-        RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$');
-    return validPackagePattern.hasMatch(packageName);
-  }
-
-/*TODO: not app value renames, find a way to remove all traces of 'adire_init_app"
-
+//TODO: not app value renames, find a way to remove all traces of 'adire_init_app"
+/*
  affected files
 1. Runner.xcscheme - Macos
 2. Pubspec.yaml

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../logger/logger.dart';
 import '../process/process.dart';
 
@@ -5,27 +7,6 @@ class FlutterCli {
   FlutterCli._();
   static FlutterCli get instance => FlutterCli._();
   static late String appPath;
-
-  // Future<String> create(String name, String appPath) async {
-  //   //TODO: check if flutter and dart installed
-  //   logger.i('Creating flutter project $name in $appPath');
-  //   final String projectPath = '$appPath/generated/$name';
-  //   await processRun(
-  //     'flutter',
-  //     arguments: [
-  //       'create',
-  //       '--project-name',
-  //       name,
-  //       projectPath,
-  //     ],
-  //     workingDirectory: appPath,
-  //     runInShell: true,
-  //   );
-  //   logger.i('Flutter create done');
-  //   logger.i('Awesome $name is created in $projectPath');
-  //   FlutterCli.appPath = projectPath;
-  //   return projectPath;
-  // }
 
   Future<void> pubRun(List<String> process, String workingDirectory) async {
     logger.i('Running dependencies $process');
@@ -73,5 +54,14 @@ class FlutterCli {
     );
 
     logger.i('Activated $packageName');
+  }
+
+  void clearProcess() {
+    if (Platform.isWindows) {
+      // TODO: not tested
+      print(Process.runSync("cls", [], runInShell: true).stdout);
+    } else {
+      print(Process.runSync("clear", [], runInShell: true).stdout);
+    }
   }
 }

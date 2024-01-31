@@ -10,11 +10,11 @@ class FlutterFireCli {
   FlutterFireCli._();
   static FlutterFireCli get instance => FlutterFireCli._();
 
+//TODO: use firebase CLI token to authenticate user in the gui app `firebase login:ci`
   Future<void> init(String appPath) async {
     // dart pub global activate flutterfire_cli
-    final path = '${Directory.current.path}/generated/adire';
-    await FlutterCli.instance.activate('flutterfire_cli', path);
-    await _configure(path);
+    await FlutterCli.instance.activate('flutterfire_cli', appPath);
+    await _configure(appPath);
     logger.i('FlutterFireCli init done');
   }
 
