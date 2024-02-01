@@ -1,0 +1,78 @@
+[debug] [2024-02-01T01:42:30.996Z] ----------------------------------------------------------------------
+[debug] [2024-02-01T01:42:31.000Z] Command:       /usr/local/bin/node /usr/local/bin/firebase projects:list --token 1//03dEOwnFcV9SACgYIARAAGAMSNgF-L9Ir8_vdScb6oKs0dQ2Jo9wVDjt8BRt
+[debug] [2024-02-01T01:42:31.000Z] CLI Version:   12.8.1
+[debug] [2024-02-01T01:42:31.000Z] Platform:      darwin
+[debug] [2024-02-01T01:42:31.001Z] Node Version:  v20.9.0
+[debug] [2024-02-01T01:42:31.001Z] Time:          Thu Feb 01 2024 02:42:31 GMT+0100 (West Africa Standard Time)
+[debug] [2024-02-01T01:42:31.001Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-02-01T01:42:31.003Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-02-01T01:42:31.003Z] > authorizing via --token option
+[warn] ⚠  Authenticating with `--token` is deprecated and will be removed in a future major version of `firebase-tools`. Instead, use a service account key with `GOOGLE_APPLICATION_CREDENTIALS`: https://cloud.google.com/docs/authentication/getting-started 
+[debug] [2024-02-01T01:42:31.005Z] > refreshing access token with scopes: []
+[debug] [2024-02-01T01:42:31.005Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2024-02-01T01:42:31.005Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-02-01T01:42:31.278Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2024-02-01T01:42:31.279Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-02-01T01:42:31.280Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2024-02-01T01:42:31.546Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 401
+[debug] [2024-02-01T01:42:31.546Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2024-02-01T01:42:31.548Z] HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2024-02-01T01:42:31.549Z] FirebaseError: HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+    at responseToError (/usr/local/lib/node_modules/firebase-tools/lib/responseToError.js:49:12)
+    at RetryOperation._fn (/usr/local/lib/node_modules/firebase-tools/lib/apiv2.js:285:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2024-02-01T01:44:10.335Z] ----------------------------------------------------------------------
+[debug] [2024-02-01T01:44:10.339Z] Command:       /usr/local/bin/node /usr/local/bin/firebase projects:list --token 1//03dEOwnFcV9SACgYIARAAGAMSNgF-L9Ir8_vdScb6oKs0dQ2Jo9wVDjt8BRt
+[debug] [2024-02-01T01:44:10.339Z] CLI Version:   12.8.1
+[debug] [2024-02-01T01:44:10.340Z] Platform:      darwin
+[debug] [2024-02-01T01:44:10.340Z] Node Version:  v20.9.0
+[debug] [2024-02-01T01:44:10.340Z] Time:          Thu Feb 01 2024 02:44:10 GMT+0100 (West Africa Standard Time)
+[debug] [2024-02-01T01:44:10.340Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-02-01T01:44:10.342Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-02-01T01:44:10.342Z] > authorizing via --token option
+[warn] ⚠  Authenticating with `--token` is deprecated and will be removed in a future major version of `firebase-tools`. Instead, use a service account key with `GOOGLE_APPLICATION_CREDENTIALS`: https://cloud.google.com/docs/authentication/getting-started 
+[debug] [2024-02-01T01:44:10.344Z] > refreshing access token with scopes: []
+[debug] [2024-02-01T01:44:10.345Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2024-02-01T01:44:10.345Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-02-01T01:44:10.607Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2024-02-01T01:44:10.607Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-02-01T01:44:10.607Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2024-02-01T01:44:10.844Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 401
+[debug] [2024-02-01T01:44:10.844Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2024-02-01T01:44:10.844Z] HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2024-02-01T01:44:10.845Z] FirebaseError: HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+    at responseToError (/usr/local/lib/node_modules/firebase-tools/lib/responseToError.js:49:12)
+    at RetryOperation._fn (/usr/local/lib/node_modules/firebase-tools/lib/apiv2.js:285:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2024-02-01T01:44:49.769Z] ----------------------------------------------------------------------
+[debug] [2024-02-01T01:44:49.773Z] Command:       /usr/local/bin/node /usr/local/bin/firebase projects:list --token 1//03dEOwnFcV9SACgYIARAAGAMSNgF-L9Ir8_vdScb6oKs0dQ2Jo9wVDjt8BRt
+[debug] [2024-02-01T01:44:49.773Z] CLI Version:   12.8.1
+[debug] [2024-02-01T01:44:49.773Z] Platform:      darwin
+[debug] [2024-02-01T01:44:49.773Z] Node Version:  v20.9.0
+[debug] [2024-02-01T01:44:49.773Z] Time:          Thu Feb 01 2024 02:44:49 GMT+0100 (West Africa Standard Time)
+[debug] [2024-02-01T01:44:49.773Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-02-01T01:44:49.775Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-02-01T01:44:49.776Z] > authorizing via --token option
+[warn] ⚠  Authenticating with `--token` is deprecated and will be removed in a future major version of `firebase-tools`. Instead, use a service account key with `GOOGLE_APPLICATION_CREDENTIALS`: https://cloud.google.com/docs/authentication/getting-started 
+[debug] [2024-02-01T01:44:49.777Z] > refreshing access token with scopes: []
+[debug] [2024-02-01T01:44:49.778Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2024-02-01T01:44:49.778Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-02-01T01:44:50.051Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2024-02-01T01:44:50.051Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-02-01T01:44:50.052Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2024-02-01T01:44:50.301Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 401
+[debug] [2024-02-01T01:44:50.301Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2024-02-01T01:44:50.303Z] HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2024-02-01T01:44:50.304Z] FirebaseError: HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+    at responseToError (/usr/local/lib/node_modules/firebase-tools/lib/responseToError.js:49:12)
+    at RetryOperation._fn (/usr/local/lib/node_modules/firebase-tools/lib/apiv2.js:285:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.

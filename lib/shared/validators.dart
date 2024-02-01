@@ -1,6 +1,19 @@
 import 'package:interact/interact.dart';
 
 class AppValidators {
+  static bool isFirebaseProjectIdValid(String? projectId) {
+    // Firebase project IDs must be lowercase and contain only alphanumeric and dash characters
+
+    final RegExp validProjectIdRegex = RegExp(r'^[a-z0-9\-]+$');
+    if (projectId == null || projectId.isEmpty) {
+      throw ValidationError('Firebase project id cannot be empty');
+    } else if (!validProjectIdRegex.hasMatch(projectId)) {
+      throw ValidationError(
+          'Firebase proiect ids must be lowercase and contain only alphanumeric and dash characters.');
+    }
+    return true;
+  }
+
   static bool isValidFlutterPackageName(String packageName) {
     // Check if the package name follows the specified format
     RegExp validPackagePattern =

@@ -1,35 +1,34 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
+import 'package:cli_app/models/firebase_app_details.dart';
+import 'package:cli_app/models/flutter_app_details.dart';
 import 'package:cli_app/shared/validators.dart';
+import 'package:cli_app/templates/firebase_template/firebase_templates.dart';
+import 'package:cli_app/templates/template_options.dart';
 
 import '../process/process.dart';
 import 'flutter_cli.dart';
-
-class FlutterAppDetails {
-  final String name;
-  final String path;
-  final String packageName;
-  FlutterAppDetails({
-    required this.name,
-    required this.path,
-    required this.packageName,
-  });
-}
 
 class FlutterApp {
   FlutterApp._();
   static FlutterApp get instance => FlutterApp._();
   AdireCliProcess process = AdireCliProcess();
-  FlutterAppDetails init() {
+  Future<FlutterAppDetails> init() async {
     String name = getAppName();
     String path = getPath();
     String package = getPackageName(name);
+    final templates = getTemplateOptions();
+    final platforms = getPlatformOptions();
+    final firebaseAppDetails = await loadTemplateOptions(templates);
 
     return FlutterAppDetails(
       name: name,
       path: path,
       packageName: package,
+      templates: templates,
+      platforms: platforms,
+      firebaseAppDetails: firebaseAppDetails,
     );
   }
 
@@ -148,4 +147,64 @@ class FlutterApp {
   //     workingDirectory,
   //   );
   // }
+
+  List<FlutterAppPlatform> getPlatformOptions() {
+    final options = FlutterAppPlatform.values;
+    final answerIndexes = process.getMultiSelectInput(
+        prompt: 'What platform should your project be initialized for?',
+        options: options.map((e) => e.name).toList(),
+        defaultValue: [
+          FlutterAppPlatform.android.name,
+          FlutterAppPlatform.ios.name,
+        ]);
+    if (answerIndexes.isEmpty) {
+      process.e('Please select a platform');
+      getPlatformOptions();
+    }
+    final answers = options
+        .where((element) => answerIndexes.contains(options.indexOf(element)))
+        .toList();
+    process.m('You selected: ${answers.join(', ')}');
+
+    return answers;
+  }
+
+  List<TemplateOptions> getTemplateOptions() {
+    final options = TemplateOptions.values;
+    final answerIndexes = process.getMultiSelectInput(
+      prompt: 'What would you like to initialize?',
+      options: options.map((e) => e.name).toList(),
+    );
+    final answers = options
+        .where((element) => answerIndexes.contains(options.indexOf(element)))
+        .toList();
+    process.m('You selected: ${answers.join(', ')}');
+    return answers;
+  }
+
+  Future<FirebaseAppDetails?> loadTemplateOptions(
+      List<TemplateOptions> options) async {
+    if (options.contains(TemplateOptions.firebase)) {
+      final firebaseAppDetails = await FirebaseTemplates().init();
+      return firebaseAppDetails;
+      // FirebaseTemplates().getOptions();
+    }
+    return null;
+  }
+
+  String getFirebaseProjectId() {
+    return process.getInput(
+      prompt: 'Enter your Firebase project ID/Name',
+      validator: (val) => AppValidators.notNullAndNotEmpty(val,
+          message: 'Project ID cannot be empty'),
+    );
+  }
+
+  String getFirebaseCliToken() {
+    return process.getInput(
+      prompt: 'Enter your Firebase CLI token',
+      validator: (val) => AppValidators.notNullAndNotEmpty(val,
+          message: 'Token cannot be empty'),
+    );
+  }
 }

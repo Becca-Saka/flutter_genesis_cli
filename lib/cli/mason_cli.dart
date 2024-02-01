@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cli_app/models/flutter_app_details.dart';
+
 import '../logger/logger.dart';
 import '../process/process.dart';
-import 'flutter_app.dart';
 
 class MasonCli {
   MasonCli._();
@@ -82,6 +83,14 @@ class MasonCli {
     final data = {
       'name': name,
       'app_domain': flutterAppDetails.packageName,
+      'android':
+          flutterAppDetails.platforms.contains(FlutterAppPlatform.android),
+      'ios': flutterAppDetails.platforms.contains(FlutterAppPlatform.ios),
+      'web': flutterAppDetails.platforms.contains(FlutterAppPlatform.web),
+      'windows':
+          flutterAppDetails.platforms.contains(FlutterAppPlatform.windows),
+      'macos': flutterAppDetails.platforms.contains(FlutterAppPlatform.macos),
+      'linux': flutterAppDetails.platforms.contains(FlutterAppPlatform.linux),
     };
     final jsonString = jsonEncode(data);
     final jsonPath = '$projectPath/config.json';

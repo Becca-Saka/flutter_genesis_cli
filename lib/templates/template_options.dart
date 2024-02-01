@@ -1,0 +1,4 @@
+enum TemplateOptions {
+  firebase,
+  superbase,
+}
