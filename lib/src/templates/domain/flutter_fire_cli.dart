@@ -7,7 +7,7 @@ import 'package:cli_app/src/data/database.dart';
 import 'package:cli_app/src/models/firebase_app_details.dart';
 import 'package:cli_app/src/models/flutter_app_details.dart';
 import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
-import 'package:cli_app/src/templates/firebase_template/token.dart';
+import 'package:cli_app/src/templates/domain/token.dart';
 import 'package:uuid/uuid.dart';
 
 class FlutterFireCli {

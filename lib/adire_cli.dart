@@ -3,7 +3,7 @@ import 'package:cli_app/src/models/flutter_app_details.dart';
 import 'package:cli_app/src/modules/flutter_app/flutter_app.dart';
 import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
 import 'package:cli_app/src/modules/mason/mason_cli.dart';
-import 'package:cli_app/src/templates/firebase_template/flutter_fire_cli.dart';
+import 'package:cli_app/src/templates/domain/flutter_fire_cli.dart';
 
 Future<void> createApp() async {
   try {
