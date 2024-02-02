@@ -5,6 +5,8 @@ import 'package:interact/interact.dart';
 
 import '../logger.dart';
 
+///This is a wrapper around [Interact] and [Process] for
+///interacting with the CLI.
 class AdireCliProcess {
   String getInput({
     required String prompt,
@@ -58,14 +60,12 @@ class AdireCliProcess {
     if (showSpinner) {
       gift = Spinner(
         icon: '🏆',
-        leftPrompt: (done) => '', // prompts are optional
+        leftPrompt: (done) => '',
         rightPrompt: (done) {
           if (spinnerMessage != null) {
             return spinnerMessage(done);
           }
-          return done
-              ? 'here is a trophy for being patient'
-              : 'searching a thing for you';
+          return done ? 'Magic is done' : 'waiting for the magic to happen';
         },
       ).interact();
     }

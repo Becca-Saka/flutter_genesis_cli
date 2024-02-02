@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:cli_app/src/common/logger.dart';
@@ -10,10 +9,12 @@ import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
 import 'package:cli_app/src/templates/firebase_template/flutter_fire_cli.dart';
 import 'package:cli_app/src/templates/template_options.dart';
 
+///Handles the flutter app creation process
 class FlutterApp {
   FlutterApp._();
   static FlutterApp get instance => FlutterApp._();
   AdireCliProcess process = AdireCliProcess();
+
   Future<FlutterAppDetails> init() async {
     final name = getAppName();
     final path = getPath();

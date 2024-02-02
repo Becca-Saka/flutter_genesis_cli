@@ -3,6 +3,23 @@ import 'dart:io';
 import 'package:cli_app/src/common/logger.dart';
 import 'package:cli_app/src/common/process/process.dart';
 
+///
+/// This class provides methods to run common Flutter CLI commands such as
+/// 'pub run', 'pub add', 'pub get', and activating global packages.
+///
+///
+/// Dependencies:
+/// - 'cli_app/src/common/logger.dart': Logger class for logging messages.
+/// - 'cli_app/src/common/process/process.dart': AdireCliProcess class for handling processes.
+///
+/// Example:
+/// ```dart
+/// FlutterCli flutterCli = FlutterCli.instance;
+/// flutterCli.pubRun(['build'], '/path/to/project');
+/// flutterCli.pubAdd(['provider', 'http'], '/path/to/project');
+/// flutterCli.pubGet('/path/to/project');
+/// flutterCli.activate('dartdoc', '/path/to/project');
+/// ```
 class FlutterCli {
   FlutterCli._();
   static FlutterCli get instance => FlutterCli._();

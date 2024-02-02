@@ -1,5 +1,6 @@
 import 'package:sqlite3/sqlite3.dart';
 
+///Helper class for interacting with an [sqlite3] database
 class DatabaseHelper {
   Database? _db;
   String table = 'auth_keys';

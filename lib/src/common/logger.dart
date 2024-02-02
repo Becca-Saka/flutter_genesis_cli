@@ -1,6 +1,7 @@
 import 'package:logger/logger.dart';
 import 'package:tint/tint.dart';
 
+///Helps to beautify the CLI
 void m(String message) {
   print(message.bold().white());
 }
