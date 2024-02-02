@@ -1,4 +1,13 @@
 import 'package:logger/logger.dart';
+import 'package:tint/tint.dart';
+
+void m(String message) {
+  print(message.bold().white());
+}
+
+void e(String message) {
+  print(message.bold().red());
+}
 
 Logger get logger => Logger(
       filter: MyFilter(),

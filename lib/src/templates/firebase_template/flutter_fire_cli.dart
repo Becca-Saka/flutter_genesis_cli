@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:cli_app/data/database.dart';
-import 'package:cli_app/models/firebase_app_details.dart';
-import 'package:cli_app/models/flutter_app_details.dart';
-import 'package:cli_app/process/process.dart';
-import 'package:cli_app/shared/validators.dart';
-import 'package:cli_app/templates/firebase_template/token.dart';
+import 'package:cli_app/src/common/logger.dart';
+import 'package:cli_app/src/common/process/process.dart';
+import 'package:cli_app/src/common/validators.dart';
+import 'package:cli_app/src/data/database.dart';
+import 'package:cli_app/src/models/firebase_app_details.dart';
+import 'package:cli_app/src/models/flutter_app_details.dart';
+import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
+import 'package:cli_app/src/templates/firebase_template/token.dart';
 import 'package:uuid/uuid.dart';
-
-import '../../cli/flutter_cli.dart';
 
 class FlutterFireCli {
   FlutterFireCli._();
@@ -101,7 +101,7 @@ class FlutterFireCli {
     // if (projectIndex == projectDetails.length) {
     //   return null;
     // } else {
-    process.m('Configuring Flutter with ${projectDetails[projectIndex]}');
+    m('Configuring Flutter with ${projectDetails[projectIndex]}');
     return projectDetails[projectIndex];
     // }
   }
@@ -132,12 +132,12 @@ class FlutterFireCli {
           done ? 'Created Firebase project' : 'Creating Firebase project ',
     );
     if (result.exitCode != 0) {
-      process.e('${result.stderr}');
-      process.e('${result.stdout}');
-      process.e('EXIT CODE ${result.exitCode}');
+      e('${result.stderr}');
+      e('${result.stdout}');
+      e('EXIT CODE ${result.exitCode}');
       return _createAppId(token, projectName);
     }
-    process.m(result.stdout);
+    m(result.stdout);
 
     return (projectId, name);
   }
@@ -148,13 +148,13 @@ class FlutterFireCli {
 
     await _configure(flutterAppDetails);
     _setupOptions(flutterAppDetails);
-    process.m('FlutterFireCli init done');
+    m('FlutterFireCli init done');
   }
 
   Future<void> _configure(FlutterAppDetails flutterAppDetails) async {
     if (flutterAppDetails.firebaseAppDetails != null) {
       final dir = Directory(flutterAppDetails.path);
-      process.m('Configuring FlutterFire $dir');
+      m('Configuring FlutterFire $dir');
       final export = [
         'export PATH="\$PATH":"<span class="math-inline">HOME/.pub-cache/bin" '
       ];
@@ -178,9 +178,9 @@ class FlutterFireCli {
             : 'Configuring Firebase project',
         workingDirectory: flutterAppDetails.path,
       );
-      process.m('Configuring done');
+      m('Configuring done');
     } else {
-      process.m('Firebase project not defined, skipping');
+      m('Firebase project not defined, skipping');
     }
   }
 
@@ -224,11 +224,11 @@ class FlutterFireCli {
   }
 
   void _setupOptions(FlutterAppDetails flutterAppDetails) {
-    process.m('Setting up firebase packages');
+    m('Setting up firebase packages');
     final firebaseAppDetails = flutterAppDetails.firebaseAppDetails!;
     final options = firebaseAppDetails.selectedOptions;
     if (options.isNotEmpty) {
-      process.m('adding packages for selected firebase options');
+      m('adding packages for selected firebase options');
       List<String> firebasePackages = [];
       for (var option in options) {
         if (firebasePackagesMap.containsKey(option)) {
@@ -237,7 +237,7 @@ class FlutterFireCli {
       }
       FlutterCli.instance.pubAdd(firebasePackages, flutterAppDetails.path);
     } else {
-      process.m('No options selected, skipping');
+      m('No options selected, skipping');
     }
   }
 }

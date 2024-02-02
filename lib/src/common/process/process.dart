@@ -2,51 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:interact/interact.dart';
-import 'package:tint/tint.dart';
 
-import '../logger/logger.dart';
-
-//TODO: add timeout and retry for network errors
-Future<ProcessResult> processRun(
-  String executable, {
-  List<String>? arguments,
-  String? workingDirectory,
-  Map<String, String>? environment,
-  bool runInShell = true,
-  bool showInlineResult = true,
-}) async {
-  final dirResult = await Process.run(
-    executable,
-    arguments ?? [],
-    workingDirectory: workingDirectory,
-    runInShell: runInShell,
-    environment: environment,
-  );
-  catchError(dirResult);
-  if (showInlineResult) {
-    AdireCliProcess().m('${dirResult.stdout}');
-  }
-  return dirResult;
-}
-
-void catchError(ProcessResult results) {
-  if (results.exitCode != 0) {
-    logger.e('${results.stderr}');
-    logger.e('${results.stdout}');
-    logger.e('EXIT CODE ${results.exitCode}');
-    exit(1);
-  }
-}
+import '../logger.dart';
 
 class AdireCliProcess {
-  void m(String message) {
-    print(message.bold().white());
-  }
-
-  void e(String message) {
-    print(message.bold().red());
-  }
-
   String getInput({
     required String prompt,
     bool Function(String)? validator,

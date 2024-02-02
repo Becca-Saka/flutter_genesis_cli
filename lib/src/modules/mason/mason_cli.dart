@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cli_app/models/flutter_app_details.dart';
+import 'package:cli_app/src/models/flutter_app_details.dart';
 
-import '../logger/logger.dart';
-import '../process/process.dart';
+import '../../common/logger.dart';
+import '../../common/process/process.dart';
 
 class MasonCli {
   MasonCli._();
@@ -14,6 +14,7 @@ class MasonCli {
   late String projectPath;
   late String masonPath;
   late FlutterAppDetails flutterAppDetails;
+  final AdireCliProcess process = AdireCliProcess();
   Future<String> init(FlutterAppDetails flutterAppDetails) async {
     masonPath = flutterAppDetails.path;
     this.name = flutterAppDetails.name;
@@ -26,7 +27,7 @@ class MasonCli {
   }
 
   Future<void> _initMason() async {
-    await processRun(
+    await process.processRun(
       'mason',
       arguments: ['init'],
       workingDirectory: masonPath,
@@ -56,7 +57,7 @@ class MasonCli {
   }
 
   Future<String> _createProjectDirectory() async {
-    await processRun(
+    await process.processRun(
       'mkdir',
       arguments: ['$name'],
       workingDirectory: masonPath,
@@ -66,7 +67,7 @@ class MasonCli {
   }
 
   Future<void> _masonAdd() async {
-    await processRun(
+    await process.processRun(
       'mason',
       arguments: [
         'add',
@@ -103,7 +104,7 @@ class MasonCli {
   }
 
   Future<void> _masonMake(String jsonPath) async {
-    await processRun(
+    await process.processRun(
       'mason',
       arguments: [
         'make',
