@@ -2,17 +2,20 @@ import 'package:cli_app/cli/flutter_app.dart';
 import 'package:cli_app/cli/flutter_cli.dart';
 import 'package:cli_app/cli/mason_cli.dart';
 import 'package:cli_app/logger/logger.dart';
+import 'package:cli_app/models/flutter_app_details.dart';
+import 'package:cli_app/templates/firebase_template/flutter_fire_cli.dart';
 
 Future<void> createApp() async {
   try {
     // await FlutterFireCli.instance.getAppId(token);
-    final flutterAppDetails = await FlutterApp.instance.init();
+    FlutterAppDetails flutterAppDetails = await FlutterApp.instance.init();
     // logger.i(flutterAppDetails);
 
     final projectPath = await MasonCli.instance.init(flutterAppDetails);
+    flutterAppDetails = flutterAppDetails.copyWith(path: projectPath);
     await FlutterCli.instance.pubGet(projectPath);
     // await FlutterApp.instance.updateAppDetails(flutterAppDetails, projectPath);
-    // await FlutterFireCli.instance.init(projectPath);
+    await FlutterFireCli.instance.initializeFirebase(flutterAppDetails);
     // await FlutterApp.instance.updateAppDetails(
     //     FlutterAppDetails(
     //         name: 'onethewoman',

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:cli_app/models/firebase_app_details.dart';
 import 'package:cli_app/models/flutter_app_details.dart';
 import 'package:cli_app/shared/validators.dart';
-import 'package:cli_app/templates/firebase_template/firebase_templates.dart';
+import 'package:cli_app/templates/firebase_template/flutter_fire_cli.dart';
 import 'package:cli_app/templates/template_options.dart';
 
 import '../process/process.dart';
@@ -20,7 +20,7 @@ class FlutterApp {
     String package = getPackageName(name);
     final templates = getTemplateOptions();
     final platforms = getPlatformOptions();
-    final firebaseAppDetails = await loadTemplateOptions(templates);
+    final firebaseAppDetails = await loadTemplateOptions(templates, name);
 
     return FlutterAppDetails(
       name: name,
@@ -164,7 +164,7 @@ class FlutterApp {
     final answers = options
         .where((element) => answerIndexes.contains(options.indexOf(element)))
         .toList();
-    process.m('You selected: ${answers.join(', ')}');
+    process.m('You selected: ${answers.map((e) => e.name).join(', ')}');
 
     return answers;
   }
@@ -183,11 +183,11 @@ class FlutterApp {
   }
 
   Future<FirebaseAppDetails?> loadTemplateOptions(
-      List<TemplateOptions> options) async {
+      List<TemplateOptions> options, String name) async {
     if (options.contains(TemplateOptions.firebase)) {
-      final firebaseAppDetails = await FirebaseTemplates().init();
+      final firebaseAppDetails =
+          await FlutterFireCli.instance.getFirebaseAppDetails(name);
       return firebaseAppDetails;
-      // FirebaseTemplates().getOptions();
     }
     return null;
   }

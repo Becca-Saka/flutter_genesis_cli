@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:interact/interact.dart';
@@ -23,7 +24,7 @@ Future<ProcessResult> processRun(
   );
   catchError(dirResult);
   if (showInlineResult) {
-    AdireCliProcess().m('$dirResult');
+    AdireCliProcess().m('${dirResult.stdout}');
   }
   return dirResult;
 }
@@ -39,7 +40,7 @@ void catchError(ProcessResult results) {
 
 class AdireCliProcess {
   void m(String message) {
-    print(message.bold().gray().onGray());
+    print(message.bold().white());
   }
 
   void e(String message) {
@@ -109,6 +110,7 @@ class AdireCliProcess {
         },
       ).interact();
     }
+
     final dirResult = await Process.run(
       executable,
       arguments ?? [],
@@ -119,16 +121,16 @@ class AdireCliProcess {
     gift?.done();
     catchError(dirResult);
     if (showInlineResult) {
-      AdireCliProcess().m('${dirResult.stdout}');
+      m('${dirResult.stdout}');
     }
     return dirResult;
   }
 
   void catchError(ProcessResult results) {
     if (results.exitCode != 0) {
-      logger.e('${results.stderr}');
-      logger.e('${results.stdout}');
-      logger.e('EXIT CODE ${results.exitCode}');
+      e('${results.stderr}');
+      e('${results.stdout}');
+      e('EXIT CODE ${results.exitCode}');
       exit(1);
     }
   }

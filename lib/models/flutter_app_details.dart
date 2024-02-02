@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cli_app/models/firebase_app_details.dart';
 import 'package:cli_app/templates/template_options.dart';
 
@@ -25,4 +26,22 @@ class FlutterAppDetails {
     required this.platforms,
     required this.firebaseAppDetails,
   });
+
+  FlutterAppDetails copyWith({
+    String? name,
+    String? path,
+    String? packageName,
+    List<TemplateOptions>? templates,
+    List<FlutterAppPlatform>? platforms,
+    FirebaseAppDetails? firebaseAppDetails,
+  }) {
+    return FlutterAppDetails(
+      name: name ?? this.name,
+      path: path ?? this.path,
+      packageName: packageName ?? this.packageName,
+      templates: templates ?? this.templates,
+      platforms: platforms ?? this.platforms,
+      firebaseAppDetails: firebaseAppDetails ?? this.firebaseAppDetails,
+    );
+  }
 }
