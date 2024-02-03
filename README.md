@@ -13,6 +13,14 @@ A new Flutter project.
 - [ ] Testing basics
 - [ ] Firebase integration
 - [ ] Superbase integration
+- [ ] Agora integration
+- [ ] One signal integration
+- [ ] VSCode extension
+- [ ] Amplify integration
+- [ ] add to existing project
 
-
+### Firebase
+- Login with google credentials in info.plist ??
+- add url scheme [https://stackoverflow.com/a/46580118]
+- SHA for android 
 
