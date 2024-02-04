@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:cli_app/src/common/logger.dart';
+import 'package:cli_app/src/common/process/http_procress.dart';
 import 'package:cli_app/src/common/process/process.dart';
 import 'package:cli_app/src/common/validators.dart';
 import 'package:cli_app/src/data/database.dart';
 import 'package:cli_app/src/models/firebase_app_details.dart';
 import 'package:cli_app/src/models/flutter_app_details.dart';
 import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
+import 'package:cli_app/src/templates/domain/firebase/firebase_package_manager.dart';
 import 'package:cli_app/src/templates/domain/token.dart';
 import 'package:uuid/uuid.dart';
 
@@ -21,14 +23,14 @@ class FlutterFireCli {
     getOptions();
     String firebaseToken = await getFirebaseCliToken();
     final projectId = await getAppId(firebaseToken, name);
-    if (selectedOptions.contains(FirebaseOptions.authentication)) {}
-
-    return FirebaseAppDetails(
+    FirebaseAppDetails details = FirebaseAppDetails(
       projectId: projectId.$1,
       projectName: projectId.$2,
       cliToken: firebaseToken,
       selectedOptions: selectedOptions,
     );
+    details = await _loadFirebaseOptions(details);
+    return details;
   }
 
   void getOptions() {
@@ -147,7 +149,8 @@ class FlutterFireCli {
         .activate('flutterfire_cli', flutterAppDetails.path);
 
     await _configure(flutterAppDetails);
-    _setupOptions(flutterAppDetails);
+    FirebasePackageManager.getPackages(flutterAppDetails);
+
     m('FlutterFireCli init done');
   }
 
@@ -223,21 +226,39 @@ class FlutterFireCli {
     return projectDetails;
   }
 
-  void _setupOptions(FlutterAppDetails flutterAppDetails) {
-    m('Setting up firebase packages');
-    final firebaseAppDetails = flutterAppDetails.firebaseAppDetails!;
-    final options = firebaseAppDetails.selectedOptions;
-    if (options.isNotEmpty) {
-      m('adding packages for selected firebase options');
-      List<String> firebasePackages = [];
-      for (var option in options) {
-        if (firebasePackagesMap.containsKey(option)) {
-          firebasePackages.add(firebasePackagesMap[option]!);
-        }
-      }
-      FlutterCli.instance.pubAdd(firebasePackages, flutterAppDetails.path);
-    } else {
-      m('No options selected, skipping');
+  Future<FirebaseAppDetails> _loadFirebaseOptions(
+      FirebaseAppDetails firebaseAppDetails) async {
+    if (selectedOptions.contains(FirebaseOptions.authentication)) {
+      final options = await _getAuthenticationOptions();
+      firebaseAppDetails = firebaseAppDetails.copyWith(
+        authenticationMethods: options,
+      );
     }
+    return firebaseAppDetails;
+  }
+
+  Future<List<AuthenticationMethod>> _getAuthenticationOptions() async {
+    const options = AuthenticationMethod.values;
+    final answerIndexes = process.getMultiSelectInput(
+      prompt: 'Please select authentication options',
+      options: options.map((e) => e.name).toList(),
+      defaultValue: [AuthenticationMethod.email.name],
+    );
+    if (answerIndexes.isEmpty) {
+      e('Please select an authentication option');
+      _getAuthenticationOptions();
+    }
+    final answers = options
+        .where((element) => answerIndexes.contains(options.indexOf(element)))
+        .toList();
+    m('You selected: ${answers.map((e) => e.name).join(', ')}');
+    return answers;
+  }
+
+  Future<void> _enableEmailPassWordSignIn() async {
+    HttpProcess http = HttpProcess();
+    final url =
+        "https://identitytoolkit.clients6.google.com/v2/projects/zappy-a16eeb8e/config?updateMask=signIn.email.enabled,signIn.email.passwordRequired&alt=json&key=AIzaSyDovLKo3djdRbs963vqKdbj-geRWyzMTrg";
+    http.patchData(url);
   }
 }

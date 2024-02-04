@@ -3,14 +3,14 @@ import 'package:tint/tint.dart';
 
 ///Helps to beautify the CLI
 void m(String message) {
-  print(message.bold().white());
+  print('💡 ${message}'.white());
 }
 
 void e(String message) {
-  print(message.bold().red());
+  print('✘ ${message}'.red());
 }
 
-Logger get logger => Logger(
+Logger get losgger => Logger(
       filter: MyFilter(),
       printer: PrettyPrinter(
         methodCount: 1,

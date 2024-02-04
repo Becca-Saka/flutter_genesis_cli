@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 enum FirebaseOptions {
   core,
   authentication,
@@ -30,16 +31,50 @@ final firebasePackagesMap = {
   FirebaseOptions.crashlytics: 'firebase_crashlytics',
 };
 
+final authPackagesMap = {
+  AuthenticationMethod.google: 'google_sign_in',
+};
+
+enum AuthenticationMethod {
+  email,
+  phone,
+  anonymous,
+  google,
+  apple,
+  facebook,
+  //TODO: add more providers
+  //github, twitter, microsoft, yahoo, game center,
+}
+
 class FirebaseAppDetails {
-  final String? projectId;
-  final String? projectName;
-  final String? cliToken;
+  final String projectId;
+  final String projectName;
+  final String cliToken;
   List<FirebaseOptions> selectedOptions;
+  List<AuthenticationMethod>? authenticationMethods;
 
   FirebaseAppDetails({
-    this.projectId,
-    this.projectName,
-    this.cliToken,
     required this.selectedOptions,
+    required this.projectId,
+    required this.projectName,
+    required this.cliToken,
+    this.authenticationMethods,
   });
+
+  FirebaseAppDetails copyWith({
+    String? projectId,
+    String? projectName,
+    String? cliToken,
+    List<FirebaseOptions>? selectedOptions,
+    List<AuthenticationMethod>? authenticationMethods,
+  }) {
+    return FirebaseAppDetails(
+      projectId: projectId ?? this.projectId,
+      projectName: projectName ?? this.projectName,
+      cliToken: cliToken ?? this.cliToken,
+      selectedOptions: selectedOptions ?? this.selectedOptions,
+      authenticationMethods:
+          authenticationMethods ?? this.authenticationMethods,
+    );
+  }
 }

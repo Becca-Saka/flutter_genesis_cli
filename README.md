@@ -23,4 +23,5 @@ A new Flutter project.
 - Login with google credentials in info.plist ??
 - add url scheme [https://stackoverflow.com/a/46580118]
 - SHA for android 
+- [https://stackoverflow.com/a/75116787/12104254]
 

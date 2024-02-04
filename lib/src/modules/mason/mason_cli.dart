@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cli_app/src/models/firebase_app_details.dart';
 import 'package:cli_app/src/models/flutter_app_details.dart';
 
 import '../../common/logger.dart';
@@ -19,10 +20,10 @@ class MasonCli {
     masonPath = flutterAppDetails.path;
     this.name = flutterAppDetails.name;
     this.flutterAppDetails = flutterAppDetails;
-    logger.i('intializing mason project in $masonPath');
+    m('intializing mason project in $masonPath');
     await _initMason();
     await _makeProject();
-    logger.i('intialized mason project in $masonPath');
+    m('intialized mason project in $masonPath');
     return projectPath;
   }
 
@@ -80,7 +81,13 @@ class MasonCli {
     );
   }
 
-  Future<String> _createConfigFile() async {
+  Map<String, Object> _getConfig() {
+    final authenticationMethods =
+        flutterAppDetails.firebaseAppDetails?.authenticationMethods;
+    final authenticationMethodsWithAssets = authenticationMethods
+      ?..remove(AuthenticationMethod.email);
+    final hasAssets = authenticationMethodsWithAssets != null &&
+        authenticationMethodsWithAssets.isNotEmpty;
     final data = {
       'name': name,
       'app_domain': flutterAppDetails.packageName,
@@ -92,7 +99,17 @@ class MasonCli {
           flutterAppDetails.platforms.contains(FlutterAppPlatform.windows),
       'macos': flutterAppDetails.platforms.contains(FlutterAppPlatform.macos),
       'linux': flutterAppDetails.platforms.contains(FlutterAppPlatform.linux),
+      'firebase': flutterAppDetails.firebaseAppDetails != null,
+      'assets': hasAssets,
+      'google_sign_in': authenticationMethodsWithAssets
+              ?.contains(AuthenticationMethod.google) ??
+          false,
     };
+    return data;
+  }
+
+  Future<String> _createConfigFile() async {
+    final data = _getConfig();
     final jsonString = jsonEncode(data);
     final jsonPath = '$projectPath/config.json';
     // Open file for writing

@@ -8,7 +8,10 @@ environment:
 # Add regular dependencies here.
 dependencies:
   args: ^2.4.2
+  crypto: ^3.0.3
+  dio: ^5.4.0
   flutterfire_cli: ^0.2.7
+  http: ^0.13.6
   interact: ^2.2.0
   logger: ^2.0.2+1
   sqlite3: ^2.3.0

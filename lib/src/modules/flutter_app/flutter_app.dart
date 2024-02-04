@@ -6,7 +6,7 @@ import 'package:cli_app/src/common/validators.dart';
 import 'package:cli_app/src/models/firebase_app_details.dart';
 import 'package:cli_app/src/models/flutter_app_details.dart';
 import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
-import 'package:cli_app/src/templates/domain/flutter_fire_cli.dart';
+import 'package:cli_app/src/templates/domain/firebase/flutter_fire_cli.dart';
 import 'package:cli_app/src/templates/template_options.dart';
 
 ///Handles the flutter app creation process
@@ -167,7 +167,7 @@ class FlutterApp {
     final answers = options
         .where((element) => answerIndexes.contains(options.indexOf(element)))
         .toList();
-    m('You selected: ${answers.join(', ')}');
+    m('You selected: ${answers.map((e) => e.name).join(', ')}');
     return answers;
   }
 

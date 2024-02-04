@@ -27,29 +27,29 @@ class FlutterCli {
   AdireCliProcess process = AdireCliProcess();
 
   Future<void> pubRun(List<String> args, String workingDirectory) async {
-    logger.i('Running dependencies $process');
+    m('Running dependencies $process');
     await process.processRun(
       'flutter',
       arguments: ['pub', 'run', ...args],
       workingDirectory: workingDirectory,
       runInShell: true,
     );
-    logger.i('Flutter pub run done');
+    m('Flutter pub run done');
   }
 
   Future<void> pubAdd(List<String> packages, String workingDirectory) async {
-    logger.i('Adding dependencies $packages');
+    m('Adding dependencies $packages');
     await process.processRun(
       'flutter',
       arguments: ['pub', 'add', ...packages],
       workingDirectory: workingDirectory,
       runInShell: true,
     );
-    logger.i('Flutter pub get done');
+    m('Flutter pub get done');
   }
 
   Future<void> pubGet(String workingDirectory) async {
-    logger.i('Getting dependencies');
+    m('Getting dependencies');
     await process.processRun(
       'flutter',
       arguments: [
@@ -59,11 +59,11 @@ class FlutterCli {
       workingDirectory: workingDirectory,
       runInShell: true,
     );
-    logger.i('Flutter pub get done');
+    m('Flutter pub get done');
   }
 
   Future<void> activate(String packageName, String workingDirectory) async {
-    logger.i('Activating $packageName');
+    m('Activating $packageName');
     await process.processRun(
       'dart',
       arguments: ['pub', 'global', 'activate', packageName],
@@ -71,7 +71,7 @@ class FlutterCli {
       runInShell: true,
     );
 
-    logger.i('Activated $packageName');
+    m('Activated $packageName');
   }
 
   void clearProcess() {
