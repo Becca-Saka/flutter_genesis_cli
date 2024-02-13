@@ -7,6 +7,10 @@ import '../logger.dart';
 
 ///This is a wrapper around [Interact] and [Process] for
 ///interacting with the CLI.
+///
+///The Interact class is used to get interactive input from the user.
+///it provides the [Input], [Select], and [MultiSelect] classes.
+///
 class AdireCliProcess {
   String getInput({
     required String prompt,
@@ -83,6 +87,19 @@ class AdireCliProcess {
       m('${dirResult.stdout}');
     }
     return dirResult;
+  }
+
+  Future<void> delayProcess(int duration, String processName) async {
+    SpinnerState gift = Spinner(
+      icon: '🏆',
+      leftPrompt: (done) => '',
+      rightPrompt: (done) {
+        return done ? 'Magic is done' : '$processName';
+      },
+    ).interact();
+    await Future.delayed(Duration(seconds: duration));
+
+    gift.done();
   }
 
   void catchError(ProcessResult results) {

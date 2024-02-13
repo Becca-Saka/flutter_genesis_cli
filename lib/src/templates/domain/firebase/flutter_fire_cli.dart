@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cli_app/src/common/extensions/lists.dart';
 import 'package:cli_app/src/common/logger.dart';
 import 'package:cli_app/src/common/process/http_procress.dart';
 import 'package:cli_app/src/common/process/process.dart';
@@ -38,7 +39,7 @@ class FlutterFireCli {
     options.remove(FirebaseOptions.core);
     final selectedOptionIndex = process.getMultiSelectInput(
       prompt: 'What firebase options would you like?',
-      options: options.map((e) => e.name).toList(),
+      options: options.names,
     );
     selectedOptions = selectedOptionIndex.map((e) => options[e]).toList();
   }
@@ -71,17 +72,17 @@ class FlutterFireCli {
 
   Future<(String, String)> getAppId(String token, String name) async {
     final appId = await _listProject(token);
-    return (appId['id']! as String, appId['name']! as String);
+    // return (appId['id']! as String, appId['name']! as String);
     //TODO: solve FirebaseProjectNotFoundException error to create a new project
 
-    // if (appId == null) {
-    //   return _createAppId(token, name);
-    // } else {
-    //   return (appId['id']! as String, appId['name']! as String);
-    // }
+    if (appId == null) {
+      return _createAppId(token, name);
+    } else {
+      return (appId['id']! as String, appId['name']! as String);
+    }
   }
 
-  Future<Map<dynamic, dynamic>> _listProject(String token) async {
+  Future<Map<dynamic, dynamic>?> _listProject(String token) async {
     final result = await process.processRun(
       'firebase',
       arguments: ['projects:list', '--token', '$token'],
@@ -96,16 +97,16 @@ class FlutterFireCli {
     final projectIndex = process.getSelectInput(
       prompt:
           'Select a Firebase project to configure your Flutter application with',
-      options: projectDetails.map((e) => '${e['name']}(${e['id']})').toList(),
-      // ..add('<create a new project>'),
+      options: projectDetails.map((e) => '${e['name']}(${e['id']})').toList()
+        ..add('<create a new project>'),
     );
 
-    // if (projectIndex == projectDetails.length) {
-    //   return null;
-    // } else {
-    m('Configuring Flutter with ${projectDetails[projectIndex]}');
-    return projectDetails[projectIndex];
-    // }
+    if (projectIndex == projectDetails.length) {
+      return null;
+    } else {
+      m('Configuring Flutter with ${projectDetails[projectIndex]}');
+      return projectDetails[projectIndex];
+    }
   }
 
   Future<(String, String)> _createAppId(
@@ -140,6 +141,7 @@ class FlutterFireCli {
       return _createAppId(token, projectName);
     }
     m(result.stdout);
+    await process.delayProcess(30, 'Waiting for Firebase Project Sync');
 
     return (projectId, name);
   }
@@ -241,7 +243,7 @@ class FlutterFireCli {
     const options = AuthenticationMethod.values;
     final answerIndexes = process.getMultiSelectInput(
       prompt: 'Please select authentication options',
-      options: options.map((e) => e.name).toList(),
+      options: options.names,
       defaultValue: [AuthenticationMethod.email.name],
     );
     if (answerIndexes.isEmpty) {
@@ -251,7 +253,7 @@ class FlutterFireCli {
     final answers = options
         .where((element) => answerIndexes.contains(options.indexOf(element)))
         .toList();
-    m('You selected: ${answers.map((e) => e.name).join(', ')}');
+    m('You selected: ${answers.names.joined}');
     return answers;
   }
 

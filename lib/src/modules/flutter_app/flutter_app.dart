@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cli_app/src/common/extensions/lists.dart';
 import 'package:cli_app/src/common/logger.dart';
 import 'package:cli_app/src/common/process/process.dart';
 import 'package:cli_app/src/common/validators.dart';
@@ -9,7 +10,9 @@ import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
 import 'package:cli_app/src/templates/domain/firebase/flutter_fire_cli.dart';
 import 'package:cli_app/src/templates/template_options.dart';
 
-///Handles the flutter app creation process
+///Handles the flutter app creation process.
+///
+///
 class FlutterApp {
   FlutterApp._();
   static FlutterApp get instance => FlutterApp._();
@@ -49,7 +52,7 @@ class FlutterApp {
 
   String getPath() {
     final path = process.getInput(
-      prompt: 'Where is your project located?(press enter to use current path)',
+      prompt: 'Where is your project located?',
       defaultValue: Directory.current.path,
     );
     if (path.isEmpty) {
@@ -60,7 +63,6 @@ class FlutterApp {
   }
 
   String getPackageName(String name) {
-    print('What is the package name?(press enter to use com.example.$name)');
     final package = process.getInput(
       prompt: 'What is the package name?',
       defaultValue: 'com.example.$name',
@@ -140,7 +142,7 @@ class FlutterApp {
     const options = FlutterAppPlatform.values;
     final answerIndexes = process.getMultiSelectInput(
       prompt: 'What platform should your project be initialized for?',
-      options: options.map((e) => e.name).toList(),
+      options: options.names,
       defaultValue: [
         FlutterAppPlatform.android.name,
         FlutterAppPlatform.ios.name,
@@ -153,7 +155,7 @@ class FlutterApp {
     final answers = options
         .where((element) => answerIndexes.contains(options.indexOf(element)))
         .toList();
-    m('You selected: ${answers.map((e) => e.name).join(', ')}');
+    m('You selected: ${answers.names.joined}');
 
     return answers;
   }
@@ -162,12 +164,12 @@ class FlutterApp {
     const options = TemplateOptions.values;
     final answerIndexes = process.getMultiSelectInput(
       prompt: 'What would you like to initialize?',
-      options: options.map((e) => e.name).toList(),
+      options: options.names,
     );
     final answers = options
         .where((element) => answerIndexes.contains(options.indexOf(element)))
         .toList();
-    m('You selected: ${answers.map((e) => e.name).join(', ')}');
+    m('You selected: ${answers.names.joined}');
     return answers;
   }
 

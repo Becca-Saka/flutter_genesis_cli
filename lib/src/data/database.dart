@@ -5,10 +5,10 @@ class DatabaseHelper {
   Database? _db;
   String table = 'auth_keys';
 
-  // Open the database
+  ///Opens the database
   Future<void> open() async {
     if (_db == null) {
-      _db = sqlite3.open('adire_cli.db');
+      _db = sqlite3.open('.adire_cli.db');
       _db!.execute('''
     CREATE TABLE IF NOT EXISTS $table (
       id TEXT PRIMARY KEY,
@@ -18,12 +18,12 @@ class DatabaseHelper {
     }
   }
 
-  // Execute a raw SQL query
+  /// Execute a raw SQL query
   Future<void> execute(String sql) async {
     _db!.execute(sql);
   }
 
-  // Insert a record into the database
+  /// Insert a record into the database
   Future<void> insert(Map<String, dynamic> values) async {
     await open();
     final columns = values.keys.join(', ');
@@ -34,7 +34,7 @@ class DatabaseHelper {
     _db!.execute(sql, values.values.toList());
   }
 
-  // Update a record in the database
+  /// Update a record in the database
   Future<void> update(
     Map<String, dynamic> values, {
     required String where,
@@ -48,7 +48,7 @@ class DatabaseHelper {
     _db!.execute(sql, [...values.values, ...whereArgs]);
   }
 
-  // Insert or update a record in the database
+  /// Insert or update a record in the database
   Future<void> insertUpdate(Map<String, dynamic> values) async {
     final where = 'id = ?';
     final whereArgs = [values['id']];
@@ -61,7 +61,7 @@ class DatabaseHelper {
     }
   }
 
-  // Delete a record from the database
+  /// Delete a record from the database
   Future<void> delete(
       {required String where, required List<Object?> whereArgs}) async {
     await open();
@@ -70,7 +70,7 @@ class DatabaseHelper {
     _db!.execute(sql, whereArgs);
   }
 
-  // Query the database and retrieve records
+  /// Query the database and retrieve records
   Future<List<Map<String, Object?>>> query({
     required String where,
     required List<Object?> whereArgs,
