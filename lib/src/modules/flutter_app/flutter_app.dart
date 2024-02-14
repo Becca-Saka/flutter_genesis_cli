@@ -7,7 +7,6 @@ import 'package:cli_app/src/common/validators.dart';
 import 'package:cli_app/src/models/firebase_app_details.dart';
 import 'package:cli_app/src/models/flutter_app_details.dart';
 import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
-import 'package:cli_app/src/templates/domain/firebase/flutter_fire_cli.dart';
 import 'package:cli_app/src/templates/template_options.dart';
 
 ///Handles the flutter app creation process.
@@ -25,14 +24,33 @@ class FlutterApp {
     final templates = getTemplateOptions();
     final platforms = getPlatformOptions();
     final firebaseAppDetails = await loadTemplateOptions(templates, name);
-
-    return FlutterAppDetails(
+    final flutterAppDetails = FlutterAppDetails(
       name: name,
       path: path,
       packageName: package,
       templates: templates,
       platforms: platforms,
       firebaseAppDetails: firebaseAppDetails,
+    );
+    return await _createApp(flutterAppDetails);
+  }
+
+  Future<FlutterAppDetails> _createApp(
+      FlutterAppDetails flutterAppDetails) async {
+    await process.processRun(
+      'flutter',
+      arguments: [
+        'create',
+        '--org',
+        '${flutterAppDetails.packageName}',
+        '--platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')}',
+        flutterAppDetails.name
+      ],
+      workingDirectory: flutterAppDetails.path,
+      runInShell: true,
+    );
+    return flutterAppDetails.copyWith(
+      path: flutterAppDetails.path + '/' + flutterAppDetails.name,
     );
   }
 
@@ -177,11 +195,11 @@ class FlutterApp {
     List<TemplateOptions> options,
     String name,
   ) async {
-    if (options.contains(TemplateOptions.firebase)) {
-      final firebaseAppDetails =
-          await FlutterFireCli.instance.getFirebaseAppDetails(name);
-      return firebaseAppDetails;
-    }
+    // if (options.contains(TemplateOptions.firebase)) {
+    //   final firebaseAppDetails =
+    //       await FlutterFireCli.instance.getFirebaseAppDetails(name);
+    //   return firebaseAppDetails;
+    // }
     return null;
   }
 

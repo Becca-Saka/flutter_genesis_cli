@@ -1,0 +1,7 @@
+analyzer:
+  exclude:
+    - cli_app_brick/
+linter:
+  rules:
+    - camel_case_types
+    - empty_constructor_bodies 
