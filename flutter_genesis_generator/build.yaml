@@ -1,9 +1,9 @@
 targets:
   $default:
     builders:
-      code_generators|copyBuilder:
+      flutter_genesis_generator|copyBuilder:
         enabled: false
-      code_generators|appCopierBuilder:
+      flutter_genesis_generator|appCopierBuilder:
         enabled: True
         generate_for: 
           - "lib/samples/**.dart"
@@ -18,13 +18,13 @@ targets:
 
 builders:
   copyBuilder:
-    import: "package:code_generators/code_generators.dart"
+    import: "package:flutter_genesis_generator/flutter_genesis_generator.dart"
     builder_factories: ["copyBuilder"]
     build_extensions: { ".txt": [".copy.txt"] }
     build_to: source
     auto_apply: root_package
   appCopierBuilder:
-    import: "package:code_generators/code_generators.dart"
+    import: "package:flutter_genesis_generator/flutter_genesis_generator.dart"
     builder_factories: ["appCopierBuilder"]
     build_extensions: { ".dart": [".g.dart"] }
     build_to:  source

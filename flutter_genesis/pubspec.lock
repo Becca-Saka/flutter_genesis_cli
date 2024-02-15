@@ -161,13 +161,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.10.0"
-  code_generators:
-    dependency: "direct dev"
-    description:
-      path: "../code_generators"
-      relative: true
-    source: path
-    version: "1.0.0"
   collection:
     dependency: transitive
     description:
@@ -256,6 +249,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  flutter_genesis_generator:
+    dependency: "direct dev"
+    description:
+      path: "../flutter_genesis_generator"
+      relative: true
+    source: path
+    version: "1.0.0"
   flutterfire_cli:
     dependency: "direct main"
     description:

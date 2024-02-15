@@ -13,8 +13,8 @@ class YamlGenerator {
       'targets': {
         '\$default': {
           'builders': {
-            'code_generators|copyBuilder': {'enabled': false},
-            'code_generators|appCopierBuilder': {
+            'flutter_genesis_generator|copyBuilder': {'enabled': false},
+            'flutter_genesis_generator|appCopierBuilder': {
               'enabled': true,
               'generate_for': ['launcher/lib/**'],
               'options': {
