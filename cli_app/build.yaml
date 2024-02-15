@@ -1,0 +1,21 @@
+targets: 
+  $default: 
+    builders: 
+      code_generators|copyBuilder: 
+        enabled: false
+
+      code_generators|appCopierBuilder: 
+        enabled: true
+        generate_for: 
+          - "launcher/lib/**"
+
+        options: 
+          destinationDirectory: "beccarocks/lib"
+          appName: "beccarocks"
+          stateManager: "bloc"
+
+
+
+    sources: 
+      - "launcher/**"
+      - "lib/**"
