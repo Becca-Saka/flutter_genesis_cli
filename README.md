@@ -1,6 +1,6 @@
 # Flutter Genesis CLI
 
-A new Flutter project.
+The Genesis of all complex apps.
 
 ## Getting Started
 
