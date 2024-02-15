@@ -6,10 +6,7 @@ import 'package:cli_app/src/templates/domain/firebase/flutter_fire_cli.dart';
 
 Future<void> createApp() async {
   try {
-    // AdireCliProcess()
-    //     .processStart('flutter', arguments: ['pub', 'add', 'firebase_core']);
     FlutterAppDetails flutterAppDetails = await FlutterApp.instance.init();
-    // final projectPath = await MasonCli.instance.init(flutterAppDetails);
     // flutterAppDetails = flutterAppDetails.copyWith(path: projectPath);
     // await FlutterCli.instance.pubGet(projectPath);
     if (flutterAppDetails.firebaseAppDetails != null) {

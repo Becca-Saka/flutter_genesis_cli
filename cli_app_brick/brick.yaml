@@ -1,9 +1,0 @@
-name: cli_app_brick
-description: A toolkit for building Flutter starter project.
-repository: https://github.com/invertase/conference-app
-
-version: 0.1.0+1
-
-environment:
-  mason: ">=0.1.0-dev.50 <0.1.0"
-

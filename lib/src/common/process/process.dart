@@ -98,9 +98,7 @@ class AdireCliProcess {
             return onError();
           }
         },
-        onDone: () {
-          gift?.done();
-        },
+        onDone: () => gift?.done(),
       );
       return null;
     } else {
@@ -114,33 +112,6 @@ class AdireCliProcess {
         onDone: () => gift?.done(),
       );
     }
-    // final dirResult = await Process.start(
-    //   executable,
-    //   arguments ?? [],
-    //   workingDirectory: workingDirectory,
-    //   runInShell: runInShell,
-    //   environment: environment,
-    // );
-    // transFormOutput(dirResult.stdout);
-    // transFormOutput(dirResult.stderr, true);
-
-    // var exitCode = await dirResult.exitCode;
-
-    // if (exitCode != 0) {
-    //   hasError = true;
-    //   gift?.done();
-    //   if (onError != null) {
-    //     return onError();
-    //   } else {
-    //     e('${dirResult.stderr}');
-    //     e('${dirResult.stdout}');
-    //     e('EXIT CODE ${exitCode}');
-    //     reset();
-    //     exit(1);
-    //   }
-    // } else {
-    //   gift?.done();
-    // }
   }
 
   Future<void> _processStart(
@@ -227,136 +198,4 @@ class AdireCliProcess {
       exit(1);
     }
   }
-//   Future<void> processStart(
-//     String executable, {
-//     List<String>? arguments,
-//     String? workingDirectory,
-//     Map<String, String>? environment,
-//     bool runInShell = true,
-//     bool showInlineResult = true,
-//     bool showSpinner = false,
-//     String Function(bool)? spinnerMessage,
-//     String? errorMessage,
-//     Function? onError,
-//   }) async {
-//     SpinnerState? gift;
-//     bool hasError = false;
-//     if (showSpinner) {
-//       gift = Spinner(
-//         icon: '🏆',
-//         leftPrompt: (done) => '',
-//         rightPrompt: (done) {
-//           if (hasError && errorMessage != null) {
-//             return errorMessage;
-//           }
-
-//           if (spinnerMessage != null) {
-//             return spinnerMessage(done);
-//           }
-
-//           return done ? 'Magic is done' : 'Waiting for the magic to happen';
-//         },
-//       ).interact();
-//     }
-
-//     final dirResult = await Process.start(
-//       executable,
-//       arguments ?? [],
-//       workingDirectory: workingDirectory,
-//       runInShell: runInShell,
-//       environment: environment,
-//     );
-//     transFormOutput(dirResult.stdout);
-//     transFormOutput(dirResult.stderr, true);
-
-//     var exitCode = await dirResult.exitCode;
-
-//     if (exitCode != 0) {
-//       hasError = true;
-//       gift?.done();
-//       if (onError != null) {
-//         return onError();
-//       } else {
-//         e('${dirResult.stderr}');
-//         e('${dirResult.stdout}');
-//         e('EXIT CODE ${exitCode}');
-//         reset();
-//         exit(1);
-//       }
-//     } else {
-//       gift?.done();
-//     }
-//   }
-
-//   void transFormOutput(Stream<List<int>> stream, [bool error = false]) {
-//     stream.transform(utf8.decoder).listen((String data) {
-//       if (error) {
-//         e('$data');
-//       } else {
-//         m('$data');
-//       }
-//     });
-//   }
-// //TODO: add timeout and retry for network errors
-
-//   Future<ProcessResult> processRun(
-//     String executable, {
-//     List<String>? arguments,
-//     String? workingDirectory,
-//     Map<String, String>? environment,
-//     bool runInShell = true,
-//     bool showInlineResult = true,
-//     bool showSpinner = false,
-//     String Function(bool)? spinnerMessage,
-//   }) async {
-//     SpinnerState? gift;
-//     if (showSpinner) {
-//       gift = Spinner(
-//         icon: '🏆',
-//         leftPrompt: (done) => '',
-//         rightPrompt: (done) {
-//           if (spinnerMessage != null) {
-//             return spinnerMessage(done);
-//           }
-//           return done ? 'Magic is done' : 'waiting for the magic to happen';
-//         },
-//       ).interact();
-//     }
-
-//     final dirResult = await Process.run(
-//       executable,
-//       arguments ?? [],
-//       workingDirectory: workingDirectory,
-//       runInShell: runInShell,
-//       environment: environment,
-//     );
-//     gift?.done();
-//     catchError(dirResult);
-//     if (showInlineResult) {
-//       m('${dirResult.stdout}');
-//     }
-//     return dirResult;
-//   }
-
-//   Future<void> delayProcess(int duration, String processName) async {
-//     SpinnerState gift = Spinner(
-//       icon: '🏆',
-//       leftPrompt: (done) => '',
-//       rightPrompt: (done) {
-//         return done ? 'Magic is done' : '$processName';
-//       },
-//     ).interact();
-//     await Future.delayed(Duration(seconds: duration));
-
-//     gift.done();
-//   }
-
-//   void catchError(ProcessResult results) {
-//     if (results.exitCode != 0) {
-//       e('${results.stderr}');
-//       e('${results.stdout}');
-//       e('EXIT CODE ${results.exitCode}');
-//       exit(1);
-//     }
-//   }
 }
