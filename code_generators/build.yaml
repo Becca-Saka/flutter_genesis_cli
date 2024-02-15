@@ -1,0 +1,31 @@
+targets:
+  $default:
+    builders:
+      code_generators|copyBuilder:
+        enabled: false
+      code_generators|appCopierBuilder:
+        enabled: True
+        generate_for: 
+          - "lib/samples/**.dart"
+          - "launcher/lib/**"
+    #     options: 
+    #         destinationDirectory: "oksds/lib"
+    #         appName: "oksds"
+    #         stateManager: "bloc"
+    # sources: 
+    #   - "../cli_app/launcher/lib/**"
+    #   - "lib/**"
+
+builders:
+  copyBuilder:
+    import: "package:code_generators/code_generators.dart"
+    builder_factories: ["copyBuilder"]
+    build_extensions: { ".txt": [".copy.txt"] }
+    build_to: source
+    auto_apply: root_package
+  appCopierBuilder:
+    import: "package:code_generators/code_generators.dart"
+    builder_factories: ["appCopierBuilder"]
+    build_extensions: { ".dart": [".g.dart"] }
+    build_to:  source
+    auto_apply: root_package
