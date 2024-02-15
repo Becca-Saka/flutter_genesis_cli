@@ -1,4 +1,4 @@
-# onethe
+# Flutter Genesis CLI
 
 A new Flutter project.
 
