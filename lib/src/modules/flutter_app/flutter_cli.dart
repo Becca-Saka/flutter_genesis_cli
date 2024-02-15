@@ -28,8 +28,9 @@ class FlutterCli {
 
   Future<void> pubRun(List<String> args, String workingDirectory) async {
     m('Running dependencies $process');
-    await process.processRun(
+    await process.run(
       'flutter',
+      streamInput: false,
       arguments: ['pub', 'run', ...args],
       workingDirectory: workingDirectory,
       runInShell: true,
@@ -39,8 +40,9 @@ class FlutterCli {
 
   Future<void> pubAdd(List<String> packages, String workingDirectory) async {
     m('Adding dependencies $packages');
-    await process.processRun(
+    await process.run(
       'flutter',
+      streamInput: false,
       arguments: ['pub', 'add', ...packages],
       workingDirectory: workingDirectory,
       runInShell: true,
@@ -50,8 +52,9 @@ class FlutterCli {
 
   Future<void> pubGet(String workingDirectory) async {
     m('Getting dependencies');
-    await process.processRun(
+    await process.run(
       'flutter',
+      streamInput: false,
       arguments: [
         'pub',
         'get',
@@ -64,8 +67,9 @@ class FlutterCli {
 
   Future<void> activate(String packageName, String workingDirectory) async {
     m('Activating $packageName');
-    await process.processRun(
+    await process.run(
       'dart',
+      streamInput: false,
       arguments: ['pub', 'global', 'activate', packageName],
       workingDirectory: workingDirectory,
       runInShell: true,

@@ -28,8 +28,9 @@ class MasonCli {
   }
 
   Future<void> _initMason() async {
-    await process.processRun(
+    await process.run(
       'mason',
+      streamInput: true,
       arguments: ['init'],
       workingDirectory: masonPath,
       runInShell: true,
@@ -58,8 +59,9 @@ class MasonCli {
   }
 
   Future<String> _createProjectDirectory() async {
-    await process.processRun(
+    await process.run(
       'mkdir',
+      streamInput: true,
       arguments: ['$name'],
       workingDirectory: masonPath,
       runInShell: true,
@@ -68,8 +70,9 @@ class MasonCli {
   }
 
   Future<void> _masonAdd() async {
-    await process.processRun(
+    await process.run(
       'mason',
+      streamInput: false,
       arguments: [
         'add',
         'cli_app_brick',
@@ -121,8 +124,9 @@ class MasonCli {
   }
 
   Future<void> _masonMake(String jsonPath) async {
-    await process.processRun(
+    await process.run(
       'mason',
+      streamInput: false,
       arguments: [
         'make',
         'cli_app_brick',

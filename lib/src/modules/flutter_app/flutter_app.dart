@@ -7,6 +7,7 @@ import 'package:cli_app/src/common/validators.dart';
 import 'package:cli_app/src/models/firebase_app_details.dart';
 import 'package:cli_app/src/models/flutter_app_details.dart';
 import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
+import 'package:cli_app/src/templates/domain/firebase/flutter_fire_cli.dart';
 import 'package:cli_app/src/templates/template_options.dart';
 
 ///Handles the flutter app creation process.
@@ -37,7 +38,7 @@ class FlutterApp {
 
   Future<FlutterAppDetails> _createApp(
       FlutterAppDetails flutterAppDetails) async {
-    await process.processRun(
+    await process.run(
       'flutter',
       arguments: [
         'create',
@@ -195,11 +196,11 @@ class FlutterApp {
     List<TemplateOptions> options,
     String name,
   ) async {
-    // if (options.contains(TemplateOptions.firebase)) {
-    //   final firebaseAppDetails =
-    //       await FlutterFireCli.instance.getFirebaseAppDetails(name);
-    //   return firebaseAppDetails;
-    // }
+    if (options.contains(TemplateOptions.firebase)) {
+      final firebaseAppDetails =
+          await FlutterFireCli.instance.getFirebaseAppDetails(name);
+      return firebaseAppDetails;
+    }
     return null;
   }
 

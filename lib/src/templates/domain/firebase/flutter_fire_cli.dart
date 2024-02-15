@@ -13,6 +13,11 @@ import 'package:cli_app/src/templates/domain/firebase/firebase_package_manager.d
 import 'package:cli_app/src/templates/domain/token.dart';
 import 'package:uuid/uuid.dart';
 
+class FirebaseAppException implements Exception {
+  final String message;
+  FirebaseAppException(this.message);
+}
+
 class FlutterFireCli {
   FlutterFireCli._();
   static FlutterFireCli get instance => FlutterFireCli._();
@@ -83,8 +88,9 @@ class FlutterFireCli {
   }
 
   Future<Map<dynamic, dynamic>?> _listProject(String token) async {
-    final result = await process.processRun(
+    final result = await process.run(
       'firebase',
+      streamInput: false,
       arguments: ['projects:list', '--token', '$token'],
       showInlineResult: false,
       showSpinner: true,
@@ -92,7 +98,7 @@ class FlutterFireCli {
           done ? 'Gotten Firebase projects' : 'Gathering Firebase projects',
     );
 
-    final projectDetails = _extractProjectDetails(result.stdout);
+    final projectDetails = _extractProjectDetails(result!.stdout);
 
     final projectIndex = process.getSelectInput(
       prompt:
@@ -111,39 +117,44 @@ class FlutterFireCli {
 
   Future<(String, String)> _createAppId(
       String token, String projectName) async {
-    final name = process.getInput(
-      prompt: 'Enter a project name for your new firebase project',
-      defaultValue: projectName,
-      validator: AppValidators.isFirebaseProjectIdValid,
-    );
-    String uniqueID = Uuid().v4();
-    uniqueID = uniqueID.substring(0, 8);
-    final projectId = '${name + '-' + uniqueID}';
-    final result = await process.processRun(
-      'firebase',
-      arguments: [
-        'projects:create',
-        '$projectId',
-        '--display-name',
-        '$name',
-        '--token',
-        '$token',
-      ],
-      showInlineResult: false,
-      showSpinner: true,
-      spinnerMessage: (done) =>
-          done ? 'Created Firebase project' : 'Creating Firebase project ',
-    );
-    if (result.exitCode != 0) {
-      e('${result.stderr}');
-      e('${result.stdout}');
-      e('EXIT CODE ${result.exitCode}');
-      return _createAppId(token, projectName);
-    }
-    m(result.stdout);
-    await process.delayProcess(30, 'Waiting for Firebase Project Sync');
+    try {
+      final name = process.getInput(
+        prompt: 'Enter a project name for your new firebase project',
+        defaultValue: projectName,
+        validator: AppValidators.isFirebaseProjectIdValid,
+      );
+      String uniqueID = Uuid().v4();
+      uniqueID = uniqueID.substring(0, 8);
+      final projectId = '${name}';
+      // final projectId = '${name + '-' + uniqueID}';
+      await process.run('firebase',
+          arguments: [
+            'projects:create',
+            '$projectId',
+            '--display-name',
+            '$name',
+            '--token',
+            '$token',
+          ],
+          showInlineResult: false,
+          showSpinner: true,
+          errorMessage: '',
+          spinnerMessage: (done) =>
+              done ? 'Created Firebase project' : 'Creating Firebase project ',
+          onError: () =>
+              throw FirebaseAppException('Firebase project creation failed'));
 
-    return (projectId, name);
+      m('Configuring Flutter with $projectId ($name)');
+      await process.delayProcess(30, 'Waiting for Firebase Project Sync');
+
+      return (projectId, name);
+    } on FirebaseAppException catch (error) {
+      e(error.message);
+      return _createAppId(token, projectName);
+    } on Exception catch (error) {
+      e('Something went wrong ${error.toString()}');
+      rethrow;
+    }
   }
 
   Future<void> initializeFirebase(FlutterAppDetails flutterAppDetails) async {
@@ -166,16 +177,17 @@ class FlutterFireCli {
       final flutterFire =
           'flutterfire configure --project=${flutterAppDetails.firebaseAppDetails?.projectId} --platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')} --token ${flutterAppDetails.firebaseAppDetails?.cliToken}';
 
-      await process.processRun('bash',
+      await process.run('bash',
           arguments: ['-c', 'dart pub global activate flutterfire_cli'],
           workingDirectory: flutterAppDetails.path);
-      await process.processRun(
+      await process.run(
         'bash',
         arguments: ['-l', '-c', ...export],
         workingDirectory: flutterAppDetails.path,
       );
-      await process.processRun(
+      await process.run(
         'bash',
+        streamInput: false,
         arguments: ['-l', '-c', flutterFire],
         showSpinner: true,
         spinnerMessage: (done) => done

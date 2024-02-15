@@ -10,8 +10,8 @@ targets:
           - "launcher/lib/**"
 
         options: 
-          destinationDirectory: "opeds/lib"
-          appName: "opeds"
+          destinationDirectory: "addd/lib"
+          appName: "addd"
 
 
 

@@ -41,6 +41,9 @@ class FirebasePackageManager {
       m('Adding auth packages for selected auth options');
 
       for (var option in authMethod) {
+        if (option == AuthenticationMethod.google) {
+          authPackages.add('flutter_svg');
+        }
         if (authPackagesMap.containsKey(option)) {
           authPackages.add(authPackagesMap[option]!);
         }

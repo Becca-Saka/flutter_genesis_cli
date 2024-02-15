@@ -16,11 +16,15 @@ class StructureGenerator {
       yamlGen.generateBuildConfig(appName);
 
   Future<void> runBuildRunner() async {
-    await process.processRun('dart', arguments: [
-      'run',
-      'build_runner',
-      'build',
-      '--delete-conflicting-outputs'
-    ]);
+    await process.run(
+      'dart',
+      streamInput: true,
+      arguments: [
+        'run',
+        'build_runner',
+        'build',
+        '--delete-conflicting-outputs',
+      ],
+    );
   }
 }
