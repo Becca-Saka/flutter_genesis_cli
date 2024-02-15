@@ -8,7 +8,7 @@ class DatabaseHelper {
   ///Opens the database
   Future<void> open() async {
     if (_db == null) {
-      _db = sqlite3.open('.adire_cli.db');
+      _db = sqlite3.open('.flutter_genesis_cli.db');
       _db!.execute('''
     CREATE TABLE IF NOT EXISTS $table (
       id TEXT PRIMARY KEY,

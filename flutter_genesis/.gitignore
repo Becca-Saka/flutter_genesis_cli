@@ -4,3 +4,4 @@
 generated/
 .mason/
 lib/templates/firebase_template/token.dart
+.flutter_genesis_cli.db
