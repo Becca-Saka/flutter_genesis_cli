@@ -1,7 +1,7 @@
-import 'package:cli_app/src/common/logger.dart';
-import 'package:cli_app/src/models/firebase_app_details.dart';
-import 'package:cli_app/src/models/flutter_app_details.dart';
-import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
+import 'package:flutter_genesis/src/common/logger.dart';
+import 'package:flutter_genesis/src/models/firebase_app_details.dart';
+import 'package:flutter_genesis/src/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
 
 class FlutterPackageManager {
   static Future<void> getPackages(FlutterAppDetails flutterAppDetails) async {

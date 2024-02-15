@@ -1,5 +1,5 @@
-import 'package:cli_app/src/models/firebase_app_details.dart';
-import 'package:cli_app/src/templates/template_options.dart';
+import 'package:flutter_genesis/src/models/firebase_app_details.dart';
+import 'package:flutter_genesis/src/templates/template_options.dart';
 
 enum StateManager {
   bloc,

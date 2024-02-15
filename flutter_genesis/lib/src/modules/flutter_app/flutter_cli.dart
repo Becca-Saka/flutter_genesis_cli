@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:cli_app/src/common/logger.dart';
-import 'package:cli_app/src/common/process/process.dart';
+import 'package:flutter_genesis/src/common/logger.dart';
+import 'package:flutter_genesis/src/common/process/process.dart';
 
 ///
 /// This class provides methods to run common Flutter CLI commands such as

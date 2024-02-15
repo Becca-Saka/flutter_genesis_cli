@@ -15,7 +15,17 @@ targets:
           stateManager: "bloc"
 
 
+      flutter_genesis_generator|appTestCopierBuilder: 
+        enabled: true
+        generate_for: 
+          - "beccarocks/test/**"
+
+        options: 
+          appName: "beccarocks"
+
+
 
     sources: 
       - "launcher/**"
       - "lib/**"
+      - "beccarocks/test/**"

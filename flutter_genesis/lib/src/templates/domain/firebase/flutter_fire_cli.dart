@@ -1,16 +1,16 @@
 import 'dart:io';
 
-import 'package:cli_app/src/common/extensions/lists.dart';
-import 'package:cli_app/src/common/logger.dart';
-import 'package:cli_app/src/common/process/http_procress.dart';
-import 'package:cli_app/src/common/process/process.dart';
-import 'package:cli_app/src/common/validators.dart';
-import 'package:cli_app/src/data/database.dart';
-import 'package:cli_app/src/models/firebase_app_details.dart';
-import 'package:cli_app/src/models/flutter_app_details.dart';
-import 'package:cli_app/src/modules/flutter_app/flutter_cli.dart';
-import 'package:cli_app/src/templates/domain/firebase/firebase_package_manager.dart';
-import 'package:cli_app/src/templates/domain/token.dart';
+import 'package:flutter_genesis/src/common/extensions/lists.dart';
+import 'package:flutter_genesis/src/common/logger.dart';
+import 'package:flutter_genesis/src/common/process/http_procress.dart';
+import 'package:flutter_genesis/src/common/process/process.dart';
+import 'package:flutter_genesis/src/common/validators.dart';
+import 'package:flutter_genesis/src/data/database.dart';
+import 'package:flutter_genesis/src/models/firebase_app_details.dart';
+import 'package:flutter_genesis/src/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
+import 'package:flutter_genesis/src/templates/domain/firebase/firebase_package_manager.dart';
+import 'package:flutter_genesis/src/templates/domain/token.dart';
 import 'package:uuid/uuid.dart';
 
 class FirebaseAppException implements Exception {

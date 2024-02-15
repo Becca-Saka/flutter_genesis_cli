@@ -1,4 +1,4 @@
-import 'package:cli_app/flutter_genesis_cli.dart';
+import 'package:flutter_genesis/flutter_genesis_cli.dart';
 
 const String version = '0.0.1';
 

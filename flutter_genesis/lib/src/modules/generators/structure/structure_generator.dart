@@ -1,5 +1,5 @@
-import 'package:cli_app/src/common/process/process.dart';
-import 'package:cli_app/src/modules/generators/yaml/yaml_generator.dart';
+import 'package:flutter_genesis/src/common/process/process.dart';
+import 'package:flutter_genesis/src/modules/generators/yaml/yaml_generator.dart';
 
 class StructureGenerator {
   StructureGenerator._();

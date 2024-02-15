@@ -137,8 +137,8 @@ class AdireCliProcess {
 
     if (exitCode != 0) {
       onError?.call();
-      e('${dirResult.stderr}');
-      e('${dirResult.stdout}');
+      // e('${dirResult.stderr.}');
+      // e('${dirResult.stdout}');
       e('EXIT CODE ${exitCode}');
       reset();
       exit(1);

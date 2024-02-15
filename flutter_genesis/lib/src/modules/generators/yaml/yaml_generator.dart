@@ -22,9 +22,14 @@ class YamlGenerator {
                 'appName': '${appName}',
                 'stateManager': '$stateManager',
               },
+            },
+            'flutter_genesis_generator|appTestCopierBuilder': {
+              'enabled': true,
+              'generate_for': ['${appName}/test/**'],
+              'options': {'appName': '${appName}'},
             }
           },
-          'sources': ['launcher/**', 'lib/**']
+          'sources': ['launcher/**', 'lib/**', '${appName}/test/**']
         }
       }
     });
