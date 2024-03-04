@@ -1,35 +1,48 @@
 import 'dart:io';
 
+import 'package:flutter_genesis/src/models/flutter_app_details.dart';
+
 import 'yaml_writer.dart';
 
 class YamlGenerator {
   final YamlWriter writer = YamlWriter();
   // final AdireCliProcess process = AdireCliProcess();
-  void generateBuildConfig(
-    String appName,
-    String stateManager,
-  ) {
+  void generateBuildConfig(FlutterAppDetails flutterAppDetails) {
+    String appName = flutterAppDetails.name;
+    // String path = appName;
+    String path = flutterAppDetails.path;
+    String subpath = path;
     String yaml = writer.write({
       'targets': {
         '\$default': {
+          'sources': [
+            'launcher/lib/**',
+            'launcher/test/**',
+            '\$package\$',
+            'lib/\$lib\$',
+          ],
           'builders': {
-            'flutter_genesis_generator|copyBuilder': {'enabled': false},
             'flutter_genesis_generator|appCopierBuilder': {
               'enabled': true,
-              'generate_for': ['launcher/lib/**'],
+              'generate_for': [
+                'launcher/lib/**',
+              ],
               'options': {
-                'destinationDirectory': '${appName}/lib',
+                'destinationDirectory': '${subpath}/lib',
                 'appName': '${appName}',
-                'stateManager': '$stateManager',
+                'stateManager': '${flutterAppDetails.stateManager.name}',
               },
             },
             'flutter_genesis_generator|appTestCopierBuilder': {
               'enabled': true,
-              'generate_for': ['${appName}/test/**'],
-              'options': {'appName': '${appName}'},
+              'generate_for': ['launcher/test/**'],
+              'options': {
+                'destinationDirectory': '${subpath}/test',
+                'appName': '${appName}',
+                'testPath': '${subpath}/test/'
+              },
             }
           },
-          'sources': ['launcher/**', 'lib/**', '${appName}/test/**']
         }
       }
     });

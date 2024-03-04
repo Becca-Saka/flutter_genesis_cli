@@ -1,32 +1,6 @@
-targets:
-  $default:
-    builders:
-      flutter_genesis_generator|copyBuilder:
-        enabled: false
-      flutter_genesis_generator|appCopierBuilder:
-        enabled: true
-        generate_for: 
-          - "lib/samples/**.dart"
-          - "launcher/lib/**"
-      flutter_genesis_generator|appTestCopierBuilder:
-        enabled: true
-        generate_for: 
-          - "test/**.dart"
-    #     options: 
-    #         destinationDirectory: "oksds/lib"
-    #         appName: "oksds"
-    #         stateManager: "bloc"
-    # sources: 
-    #   - "../cli_app/launcher/lib/**"
-    #   - "lib/**"
 
 builders:
-  copyBuilder:
-    import: "package:flutter_genesis_generator/flutter_genesis_generator.dart"
-    builder_factories: ["copyBuilder"]
-    build_extensions: { ".txt": [".copy.txt"] }
-    build_to: source
-    auto_apply: root_package
+
   appCopierBuilder:
     import: "package:flutter_genesis_generator/flutter_genesis_generator.dart"
     builder_factories: ["appCopierBuilder"]

@@ -1,31 +1,29 @@
 targets: 
   $default: 
-    builders: 
-      flutter_genesis_generator|copyBuilder: 
-        enabled: false
+    sources: 
+      - "launcher/lib/**"
+      - "launcher/test/**"
+      - "$package$"
+      - "lib/$lib$"
 
+    builders: 
       flutter_genesis_generator|appCopierBuilder: 
         enabled: true
         generate_for: 
           - "launcher/lib/**"
 
         options: 
-          destinationDirectory: "beccarocks/lib"
-          appName: "beccarocks"
+          destinationDirectory: "/Users/becca/StudioProjects/flutter/Work/Adire/flutter_genesis_cli/examples/addd/lib"
+          appName: "addd"
           stateManager: "bloc"
 
 
       flutter_genesis_generator|appTestCopierBuilder: 
         enabled: true
         generate_for: 
-          - "beccarocks/test/**"
+          - "launcher/test/**"
 
         options: 
-          appName: "beccarocks"
-
-
-
-    sources: 
-      - "launcher/**"
-      - "lib/**"
-      - "beccarocks/test/**"
+          destinationDirectory: "/Users/becca/StudioProjects/flutter/Work/Adire/flutter_genesis_cli/examples/addd/test"
+          appName: "addd"
+          testPath: "/Users/becca/StudioProjects/flutter/Work/Adire/flutter_genesis_cli/examples/addd/test/"

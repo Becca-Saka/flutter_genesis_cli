@@ -72,15 +72,20 @@ class FlutterApp {
   }
 
   String getPath() {
+    // String appPath = Directory.current.path;
+    String appPath = Directory.current.parent.path + '/examples';
     final path = process.getInput(
       prompt: 'Where is your project located?',
-      defaultValue: Directory.current.path,
+      defaultValue: appPath,
     );
-    if (path.isEmpty) {
-      return Directory.current.path;
-    } else {
-      return path;
+    if (path.isNotEmpty) {
+      appPath = path;
     }
+
+    if (!Directory(appPath).existsSync()) {
+      Directory(appPath).createSync(recursive: true);
+    }
+    return appPath;
   }
 
   String getPackageName(String name) {

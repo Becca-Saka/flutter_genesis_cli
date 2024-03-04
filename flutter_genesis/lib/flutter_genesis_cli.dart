@@ -14,8 +14,7 @@ Future<void> createApp() async {
       await FlutterFireCli.instance.initializeFirebase(flutterAppDetails);
     }
     // await FlutterPackageManager.getPackages(flutterAppDetails);
-    StructureGenerator.instance.generateStructure(
-        flutterAppDetails.name, flutterAppDetails.stateManager.name);
+    StructureGenerator.instance.generateStructure(flutterAppDetails);
     // await FlutterPackageManager.getPackages(flutterAppDetails);
   } on Exception catch (ed) {
     e('Error: $ed');

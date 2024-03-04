@@ -1,4 +1,5 @@
 import 'package:flutter_genesis/src/common/process/process.dart';
+import 'package:flutter_genesis/src/models/flutter_app_details.dart';
 import 'package:flutter_genesis/src/modules/generators/yaml/yaml_generator.dart';
 
 class StructureGenerator {
@@ -7,16 +8,13 @@ class StructureGenerator {
   final YamlGenerator yamlGen = YamlGenerator();
   final AdireCliProcess process = AdireCliProcess();
 
-  void generateStructure(
-    String appName,
-    String stateManager,
-  ) {
-    generateBuildConfig(appName, stateManager);
+  void generateStructure(FlutterAppDetails appDetails) {
+    generateBuildConfig(appDetails);
     runBuildRunner();
   }
 
-  void generateBuildConfig(String appName, String stateManager) =>
-      yamlGen.generateBuildConfig(appName, stateManager);
+  void generateBuildConfig(FlutterAppDetails appDetails) =>
+      yamlGen.generateBuildConfig(appDetails);
 
   Future<void> runBuildRunner() async {
     await process.run(
