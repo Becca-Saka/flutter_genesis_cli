@@ -29,6 +29,5 @@ class AppTestCopierBuilder implements Builder {
           File('$destinationPath/${inputId.pathSegments.last}');
       await destinationFile.writeAsString(inputContent);
     }
-    // }
   }
 }

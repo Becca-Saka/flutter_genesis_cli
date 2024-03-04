@@ -10,11 +10,7 @@ String replaceByPattern(
 }) {
   return inputContent.replaceAllMapped(
     RegExp(r'' + oldPattern),
-    (match) {
-      // print(
-      //     'matches ${match.pattern} ${match.start} ${match.end} ${match.groupCount} ${match.input}');
-      return newPattern;
-    },
+    (match) => newPattern,
   );
 }
 

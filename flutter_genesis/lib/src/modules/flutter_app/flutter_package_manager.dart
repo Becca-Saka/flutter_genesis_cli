@@ -6,13 +6,15 @@ import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
 class FlutterPackageManager {
   static Future<void> getPackages(FlutterAppDetails flutterAppDetails) async {
     m('Setting up external packages');
-    final firebaseAppDetails = flutterAppDetails.firebaseAppDetails!;
+    final firebaseAppDetails = flutterAppDetails.firebaseAppDetails;
     final path = flutterAppDetails.path;
-    final authPackages =
-        _getAuthCorePackages(firebaseAppDetails.authenticationMethods, path);
+    if (firebaseAppDetails != null) {
+      final authPackages =
+          _getAuthCorePackages(firebaseAppDetails.authenticationMethods, path);
 
-    if (authPackages.isNotEmpty) {
-      await FlutterCli.instance.pubAdd(authPackages, path);
+      if (authPackages.isNotEmpty) {
+        await FlutterCli.instance.pubAdd(authPackages, path);
+      }
     }
   }
 
