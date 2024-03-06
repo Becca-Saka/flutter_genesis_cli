@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_genesis/src/models/flutter_app_details.dart';
 
+import 'pattern_replace.dart';
+
 class AppCopier {
   Future<void> copyFiles({
     required String sourcePath,
@@ -10,21 +12,19 @@ class AppCopier {
     Directory dir = Directory('launcher/$sourcePath');
     await for (var entity in dir.list(recursive: true, followLinks: false)) {
       if (entity is File) {
-        print('file at entity.path ${entity.path} ');
         String relativePath = entity.path.substring(dir.path.length);
         final pathDart = relativePath.splitMapJoin('.dart');
-        // print('file at pathDart $pathDart ');
         final pathDartSplited = pathDart.split('/');
+
         final pathDartList = List.from(pathDartSplited)..removeLast();
-        // print('file at pathDartList $pathDartList ');
         relativePath = pathDartList.join('/');
-        print('file at relativePath $relativePath ');
         String destinationPath =
             _setUpByManager('${appDetails.path}/$sourcePath', relativePath);
         String newDestinationPath =
             '${destinationPath}/${pathDartSplited.last}';
         var destinationFile = File('$newDestinationPath');
-        if (!destinationFile.existsSync()) {
+
+        if (canCopyFile(appDetails, pathDartSplited.last)) {
           await destinationFile.create(recursive: true);
           var content = await entity.readAsString();
           var modifiedContent = replaceByPattern(
@@ -39,30 +39,26 @@ class AppCopier {
             newPattern: "/data/services/",
           );
 
-          // content.replaceAll(
-          //   "import 'package:launcher/",
-          //   "import 'package:${appDetails.name}/",
-          // );
-          // var modifiedContent = content.replaceAll(
-          //   "import 'package:launcher/",
-          //   "import 'package:${appDetails.name}/",
-          // );
           await destinationFile.writeAsString(modifiedContent);
         }
-        print('new file at $newDestinationPath ');
       }
     }
   }
 
-  String replaceByPattern(
-    String inputContent, {
-    required String oldPattern,
-    required String newPattern,
-  }) {
-    return inputContent.replaceAll(
-      oldPattern,
-      newPattern,
-    );
+  bool canCopyFile(FlutterAppDetails appDetails, String path) {
+    final authPaths = [
+      'firebase_options.dart',
+      'sign_in_page.dart',
+      'sign_up_page.dart',
+      'auth_services.dart',
+    ];
+    if (appDetails.firebaseAppDetails == null) {
+      if (authPaths.contains(path)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   String _setUpByManager(

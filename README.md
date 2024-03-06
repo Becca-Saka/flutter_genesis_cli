@@ -17,6 +17,10 @@ The Genesis of all complex apps.
 - [ ] One signal integration
 - [ ] VSCode extension
 - [ ] Amplify integration
+- [ ] Sentry extension
+- [ ] Flavor integration
+- [ ] Google analytics extension
+- [ ] Amplify integration
 - [ ] add to existing project
 
 ### Firebase

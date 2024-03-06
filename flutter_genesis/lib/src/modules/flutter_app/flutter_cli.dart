@@ -65,6 +65,18 @@ class FlutterCli {
     m('Flutter pub get done');
   }
 
+  Future<void> format(String workingDirectory) async {
+    m('Running Dart Format');
+    await process.run(
+      'dart',
+      streamInput: false,
+      arguments: ['format', '.'],
+      workingDirectory: workingDirectory,
+      runInShell: true,
+    );
+    m('Dart Format done');
+  }
+
   Future<void> activate(String packageName, String workingDirectory) async {
     m('Activating $packageName');
     await process.run(
