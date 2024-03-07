@@ -1,4 +1,4 @@
-class ExcludableCodes {
+final class ExcludableCodes {
   final String appPath;
   ExcludableCodes(this.appPath);
 

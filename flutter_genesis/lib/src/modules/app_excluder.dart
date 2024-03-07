@@ -9,7 +9,7 @@ import 'excludable_code.dart';
 class AppExcluder {
   void removeCode(FlutterAppDetails appDetails) {
     final basePath = join(appDetails.path, 'lib', 'managers');
-
+    print('removing $basePath');
     _removeStateManagers(appDetails, basePath);
 
     //TODO: add test folder back

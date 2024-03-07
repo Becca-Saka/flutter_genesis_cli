@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_genesis/src/models/flutter_app_details.dart';
+import 'package:path/path.dart';
 
 import 'pattern_replace.dart';
 
@@ -13,18 +14,20 @@ class AppCopier {
     await for (var entity in dir.list(recursive: true, followLinks: false)) {
       if (entity is File) {
         String relativePath = entity.path.substring(dir.path.length);
-        final pathDart = relativePath.splitMapJoin('.dart');
-        final pathDartSplited = pathDart.split('/');
+        final joinPart = split(relativePath);
+        final joinPartSplited = List<String>.from(joinPart)..removeLast();
+        relativePath = joinAll(joinPartSplited);
 
-        final pathDartList = List.from(pathDartSplited)..removeLast();
-        relativePath = pathDartList.join('/');
+        final baseName = basename(entity.path);
         String destinationPath =
             _setUpByManager('${appDetails.path}/$sourcePath', relativePath);
-        String newDestinationPath =
-            '${destinationPath}/${pathDartSplited.last}';
+
+        String newDestinationPath = '${destinationPath}/${baseName}';
+        newDestinationPath = normalize(newDestinationPath);
+
         var destinationFile = File('$newDestinationPath');
 
-        if (canCopyFile(appDetails, pathDartSplited.last)) {
+        if (canCopyFile(appDetails, baseName)) {
           await destinationFile.create(recursive: true);
           var content = await entity.readAsString();
           var modifiedContent = replaceByPattern(
