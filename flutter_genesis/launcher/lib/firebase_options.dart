@@ -68,7 +68,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'zappy-a16eeb8e.appspot.com',
     iosBundleId: 'com.example.launcher',
   );
-
+// s
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyA9CLUHFJ1mRojffKFX4COAhrskDH2xHyI',
     appId: '1:358276689572:ios:0dd61860adb8a5d9080031',

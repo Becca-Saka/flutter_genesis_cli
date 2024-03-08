@@ -158,8 +158,7 @@ class FlutterFireCli {
   }
 
   Future<void> initializeFirebase(FlutterAppDetails flutterAppDetails) async {
-    await FlutterCli.instance
-        .activate('flutterfire_cli', flutterAppDetails.path);
+    await FlutterCli.activate('flutterfire_cli', flutterAppDetails.path);
 
     await _configure(flutterAppDetails);
     FirebasePackageManager.getPackages(flutterAppDetails);

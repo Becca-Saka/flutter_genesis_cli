@@ -13,7 +13,7 @@ class FlutterPackageManager {
           _getAuthCorePackages(firebaseAppDetails.authenticationMethods, path);
 
       if (authPackages.isNotEmpty) {
-        await FlutterCli.instance.pubAdd(authPackages, path);
+        await FlutterCli.pubAdd(authPackages, path);
       }
     }
   }

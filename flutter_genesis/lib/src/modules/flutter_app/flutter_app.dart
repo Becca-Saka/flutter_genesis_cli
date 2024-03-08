@@ -6,15 +6,15 @@ import 'package:flutter_genesis/src/common/process/process.dart';
 import 'package:flutter_genesis/src/common/validators.dart';
 import 'package:flutter_genesis/src/models/firebase_app_details.dart';
 import 'package:flutter_genesis/src/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
 import 'package:flutter_genesis/src/templates/domain/firebase/flutter_fire_cli.dart';
 import 'package:flutter_genesis/src/templates/template_options.dart';
+import 'package:path/path.dart';
 
 ///Handles the flutter app creation process.
 ///
 ///
 class FlutterApp {
-  FlutterApp._();
-  static FlutterApp get instance => FlutterApp._();
   AdireCliProcess process = AdireCliProcess();
 
   Future<FlutterAppDetails> init() async {
@@ -39,20 +39,10 @@ class FlutterApp {
 
   Future<FlutterAppDetails> _createApp(
       FlutterAppDetails flutterAppDetails) async {
-    await process.run(
-      'flutter',
-      arguments: [
-        'create',
-        '--org',
-        '${flutterAppDetails.packageName}',
-        '--platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')}',
-        flutterAppDetails.name
-      ],
-      workingDirectory: flutterAppDetails.path,
-      runInShell: true,
-    );
+    await FlutterCli.create(flutterAppDetails: flutterAppDetails);
+
     return flutterAppDetails.copyWith(
-      path: flutterAppDetails.path + '/' + flutterAppDetails.name,
+      path: normalize(flutterAppDetails.path + '/' + flutterAppDetails.name),
     );
   }
 
@@ -72,7 +62,7 @@ class FlutterApp {
 
   String getPath() {
     // String appPath = Directory.current.path;
-    String appPath = Directory.current.parent.path + '/examples';
+    String appPath = normalize(Directory.current.parent.path + '/examples');
     final path = process.getInput(
       prompt: 'Where is your project located?',
       defaultValue: appPath,
@@ -155,25 +145,5 @@ class FlutterApp {
       return firebaseAppDetails;
     }
     return null;
-  }
-
-  String getFirebaseProjectId() {
-    return process.getInput(
-      prompt: 'Enter your Firebase project ID/Name',
-      validator: (val) => AppValidators.notNullAndNotEmpty(
-        val,
-        message: 'Project ID cannot be empty',
-      ),
-    );
-  }
-
-  String getFirebaseCliToken() {
-    return process.getInput(
-      prompt: 'Enter your Firebase CLI token',
-      validator: (val) => AppValidators.notNullAndNotEmpty(
-        val,
-        message: 'Token cannot be empty',
-      ),
-    );
   }
 }

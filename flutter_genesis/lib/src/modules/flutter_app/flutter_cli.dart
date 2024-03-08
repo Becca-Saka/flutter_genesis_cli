@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter_genesis/src/common/logger.dart';
 import 'package:flutter_genesis/src/common/process/process.dart';
+import 'package:flutter_genesis/src/models/flutter_app_details.dart';
 
 ///
 /// This class provides methods to run common Flutter CLI commands such as
@@ -21,24 +20,38 @@ import 'package:flutter_genesis/src/common/process/process.dart';
 /// flutterCli.activate('dartdoc', '/path/to/project');
 /// ```
 class FlutterCli {
-  FlutterCli._();
-  static FlutterCli get instance => FlutterCli._();
   static late String appPath;
-  AdireCliProcess process = AdireCliProcess();
+  static AdireCliProcess process = AdireCliProcess();
 
-  Future<void> pubRun(List<String> args, String workingDirectory) async {
-    m('Running dependencies $process');
+  static Future<void> create(
+      {required FlutterAppDetails flutterAppDetails}) async {
     await process.run(
       'flutter',
-      streamInput: false,
-      arguments: ['pub', 'run', ...args],
-      workingDirectory: workingDirectory,
+      arguments: [
+        'create',
+        '--org',
+        '${flutterAppDetails.packageName}',
+        '--platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')}',
+        flutterAppDetails.name
+      ],
+      workingDirectory: flutterAppDetails.path,
       runInShell: true,
     );
-    m('Flutter pub run done');
   }
+  // static Future<void> pubRun(List<String> args, String workingDirectory) async {
+  //   m('Running dependencies $process');
+  //   await process.run(
+  //     'flutter',
+  //     streamInput: false,
+  //     arguments: ['pub', 'run', ...args],
+  //     workingDirectory: workingDirectory,
+  //     runInShell: true,
+  //   );
+  //   m('Flutter pub run done');
+  // }
 
-  Future<void> pubAdd(List<String> packages, String workingDirectory) async {
+  static Future<void> pubAdd(
+      List<String> packages, String workingDirectory) async {
     m('Adding dependencies $packages');
     await process.run(
       'flutter',
@@ -50,22 +63,22 @@ class FlutterCli {
     m('Flutter pub get done');
   }
 
-  Future<void> pubGet(String workingDirectory) async {
-    m('Getting dependencies');
-    await process.run(
-      'flutter',
-      streamInput: false,
-      arguments: [
-        'pub',
-        'get',
-      ],
-      workingDirectory: workingDirectory,
-      runInShell: true,
-    );
-    m('Flutter pub get done');
-  }
+  // static Future<void> pubGet(String workingDirectory) async {
+  //   m('Getting dependencies');
+  //   await process.run(
+  //     'flutter',
+  //     streamInput: false,
+  //     arguments: [
+  //       'pub',
+  //       'get',
+  //     ],
+  //     workingDirectory: workingDirectory,
+  //     runInShell: true,
+  //   );
+  //   m('Flutter pub get done');
+  // }
 
-  Future<void> format(String workingDirectory) async {
+  static Future<void> format(String workingDirectory) async {
     m('Running Dart Format');
     await process.run(
       'dart',
@@ -77,7 +90,8 @@ class FlutterCli {
     m('Dart Format done');
   }
 
-  Future<void> activate(String packageName, String workingDirectory) async {
+  static Future<void> activate(
+      String packageName, String workingDirectory) async {
     m('Activating $packageName');
     await process.run(
       'dart',
@@ -90,12 +104,12 @@ class FlutterCli {
     m('Activated $packageName');
   }
 
-  void clearProcess() {
-    if (Platform.isWindows) {
-      // TODO: not tested
-      print(Process.runSync("cls", [], runInShell: true).stdout);
-    } else {
-      print(Process.runSync("clear", [], runInShell: true).stdout);
-    }
-  }
+  // static void clearProcess() {
+  //   if (Platform.isWindows) {
+  //     // TODO: not tested
+  //     print(Process.runSync("cls", [], runInShell: true).stdout);
+  //   } else {
+  //     print(Process.runSync("clear", [], runInShell: true).stdout);
+  //   }
+  // }
 }
