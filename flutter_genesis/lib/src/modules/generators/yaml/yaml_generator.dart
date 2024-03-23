@@ -30,7 +30,6 @@ class YamlGenerator {
               'options': {
                 'destinationDirectory': '${subpath}/lib',
                 'appName': '${appName}',
-                'stateManager': '${flutterAppDetails.stateManager.name}',
               },
             },
             'flutter_genesis_generator|appTestCopierBuilder': {

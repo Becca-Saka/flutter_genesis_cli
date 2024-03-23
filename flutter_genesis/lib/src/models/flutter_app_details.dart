@@ -1,12 +1,6 @@
 import 'package:flutter_genesis/src/models/firebase_app_details.dart';
 import 'package:flutter_genesis/src/templates/template_options.dart';
 
-enum StateManager {
-  setstate,
-  bloc,
-  provider,
-}
-
 enum FlutterAppPlatform {
   ios,
   android,
@@ -22,7 +16,6 @@ class FlutterAppDetails {
   final String packageName;
   final List<TemplateOptions> templates;
   final List<FlutterAppPlatform> platforms;
-  final StateManager stateManager;
   final FirebaseAppDetails? firebaseAppDetails;
   FlutterAppDetails({
     required this.name,
@@ -31,7 +24,6 @@ class FlutterAppDetails {
     required this.templates,
     required this.platforms,
     required this.firebaseAppDetails,
-    this.stateManager = StateManager.setstate,
   });
 
   FlutterAppDetails copyWith({

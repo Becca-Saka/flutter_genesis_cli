@@ -21,7 +21,6 @@ class FlutterApp {
     final name = getAppName();
     final path = getPath();
     final package = getPackageName(name);
-    final stateManager = getStateManagerOptions();
     final templates = getTemplateOptions();
     final platforms = getPlatformOptions();
     final firebaseAppDetails = await loadTemplateOptions(templates, name);
@@ -32,7 +31,6 @@ class FlutterApp {
       templates: templates,
       platforms: platforms,
       firebaseAppDetails: firebaseAppDetails,
-      stateManager: stateManager,
     );
     return await _createApp(flutterAppDetails);
   }
@@ -107,19 +105,6 @@ class FlutterApp {
     m('You selected: ${answers.names.joined}');
 
     return answers;
-  }
-
-  StateManager getStateManagerOptions() {
-    const options = StateManager.values;
-    final answerIndex = process.getSelectInput(
-      prompt: 'What state manager should your project be initialized with?',
-      options: options.names,
-      defaultValue: StateManager.bloc.name,
-    );
-    final answer = options[answerIndex];
-    m('You selected: ${answer}');
-
-    return answer;
   }
 
   List<TemplateOptions> getTemplateOptions() {

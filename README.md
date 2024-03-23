@@ -9,7 +9,7 @@ The Genesis of all complex apps.
 
 
 ## Check list
-- [ ] State managements
+- [ ] State managements-[Suspended]
 - [ ] Testing basics
 - [ ] Firebase integration
 - [ ] Superbase integration
