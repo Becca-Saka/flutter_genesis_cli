@@ -1,6 +1,6 @@
-import 'package:flutter_genesis/src/common/logger.dart';
-import 'package:flutter_genesis/src/common/process/process.dart';
-import 'package:flutter_genesis/src/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/commands/process/process.dart';
+import 'package:flutter_genesis/src/shared/logger.dart';
+import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 
 ///
 /// This class provides methods to run common Flutter CLI commands such as

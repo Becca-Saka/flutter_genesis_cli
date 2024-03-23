@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter_genesis/src/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:path/path.dart';
 
 import 'pattern_replace.dart';

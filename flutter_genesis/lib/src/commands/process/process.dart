@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:interact/interact.dart';
 
-import '../logger.dart';
+import '../../shared/logger.dart';
 
 ///This is a wrapper around [Interact] and [Process] for
 ///interacting with the CLI.

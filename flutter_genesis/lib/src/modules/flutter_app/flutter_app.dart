@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'package:flutter_genesis/src/common/extensions/lists.dart';
-import 'package:flutter_genesis/src/common/logger.dart';
-import 'package:flutter_genesis/src/common/process/process.dart';
-import 'package:flutter_genesis/src/common/validators.dart';
-import 'package:flutter_genesis/src/models/firebase_app_details.dart';
-import 'package:flutter_genesis/src/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/commands/process/process.dart';
 import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
-import 'package:flutter_genesis/src/templates/domain/firebase/flutter_fire_cli.dart';
+import 'package:flutter_genesis/src/shared/extensions/lists.dart';
+import 'package:flutter_genesis/src/shared/logger.dart';
+import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
+import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/shared/validators.dart';
+import 'package:flutter_genesis/src/templates/firebase/flutter_fire_cli.dart';
 import 'package:flutter_genesis/src/templates/template_options.dart';
 import 'package:path/path.dart';
 
