@@ -19,16 +19,20 @@ class FlutterApp {
   AdireCliProcess process = AdireCliProcess();
 
   Future<FlutterAppDetails> init() async {
-    final flavors = await FlavorManager().getFlavorInfomation();
-
+    // final name = getAppName();
+    // final package = getPackageName(name);
     final name = getAppName();
     final package = getPackageName(name);
-    // final name = flavors != null ? null : getAppName();
-    // final package = flavors != null ? null : getPackageName(name);
     final path = getPath();
+    final flavors = await FlavorManager().getFlavorInfomation(package);
     final templates = getTemplateOptions();
     final platforms = getPlatformOptions();
-    final firebaseAppDetails = await loadTemplateOptions(templates, name);
+    final firebaseAppDetails = await loadTemplateOptions(
+      templates,
+      name,
+      flavors,
+    );
+
     // final flavors = FlavorManager().getFlavorInfomation();
 
     final flutterAppDetails = FlutterAppDetails(
@@ -46,7 +50,9 @@ class FlutterApp {
   Future<FlutterAppDetails> _createApp(
       FlutterAppDetails flutterAppDetails) async {
     await FlutterCli.create(flutterAppDetails: flutterAppDetails);
-
+    // if (flutterAppDetails.firebaseAppDetails?.flavorConfigs != null) {
+    //   flutterAppDetails = FlavorManager().addFirebaseFlavors(flutterAppDetails);
+    // }
     return flutterAppDetails.copyWith(
       path: normalize(flutterAppDetails.path + '/' + flutterAppDetails.name),
     );
@@ -131,10 +137,11 @@ class FlutterApp {
   Future<FirebaseAppDetails?> loadTemplateOptions(
     List<TemplateOptions> options,
     String name,
+    FlavorModel? flavors,
   ) async {
     if (options.contains(TemplateOptions.firebase)) {
       final firebaseAppDetails =
-          await FlutterFireCli.instance.getFirebaseAppDetails(name);
+          await FlutterFireCli.instance.getFirebaseAppDetails(name, flavors);
       return firebaseAppDetails;
     }
     return null;

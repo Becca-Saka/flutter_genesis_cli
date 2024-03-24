@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:flutter_genesis/src/commands/process/process.dart';
+import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
 import 'package:flutter_genesis/src/modules/generators/yaml/yaml_generator.dart';
 import 'package:flutter_genesis/src/shared/extensions/lists.dart';
 import 'package:flutter_genesis/src/shared/logger.dart';
@@ -18,25 +19,27 @@ class FlavorModel {
   Map<String, String>? versionCode;
   Map<String, String>? minSdkVersion;
   Map<String, String>? signingConfig;
+  Map<String, Map<String, String>>? firebaseConfig;
   List<CustomResValueModel>? resValues;
   List<CustomResValueModel>? buildConfigFields;
   final List<String> environmentOptions;
   FlavorModel({
-    required this.environmentOptions,
     this.name,
     this.packageId,
     this.imagePaths,
     this.versionNameSuffix,
     this.versionCode,
     this.minSdkVersion,
+    this.signingConfig,
+    this.firebaseConfig,
     this.resValues,
     this.buildConfigFields,
-    this.signingConfig,
+    required this.environmentOptions,
   });
 
   @override
   String toString() {
-    return 'FlavorModel(name: $name, packageId: $packageId, imagePaths: $imagePaths, versionNameSuffix: $versionNameSuffix, versionCode: $versionCode, minSdkVersion: $minSdkVersion, signingConfig: $signingConfig, resValues: $resValues, buildConfigFields: $buildConfigFields, environmentOptions: $environmentOptions)';
+    return 'FlavorModel(name: $name, packageId: $packageId, imagePaths: $imagePaths, versionNameSuffix: $versionNameSuffix, versionCode: $versionCode, minSdkVersion: $minSdkVersion, signingConfig: $signingConfig, firebaseConfig: $firebaseConfig, resValues: $resValues, buildConfigFields: $buildConfigFields, environmentOptions: $environmentOptions)';
   }
 }
 
@@ -62,7 +65,7 @@ class FlavorManager {
   AdireCliProcess process = AdireCliProcess();
   YamlGenerator yamlGenerator = YamlGenerator();
 
-  Future<FlavorModel?> getFlavorInfomation() async {
+  Future<FlavorModel?> getFlavorInfomation(String package) async {
     final response = process.getConfirmation(
       prompt: 'Do you want app flavors?',
       defaultValue: false,
@@ -74,7 +77,7 @@ class FlavorManager {
         environmentOptions: selectedFlavors,
       );
       model.name = _getFlavorAppName(selectedFlavors);
-      model.packageId = _getFlavorAppId(selectedFlavors);
+      model.packageId = _getFlavorAppId(selectedFlavors, package);
       model.imagePaths = await _getFlavorImage(selectedFlavors);
       model.versionNameSuffix = _getFlavorVersionNameSuffix(selectedFlavors);
       model.versionCode = _getFlavorVersionCodeSuffix(selectedFlavors);
@@ -127,28 +130,30 @@ class FlavorManager {
     return flavors;
   }
 
-  Map<String, String> _getFlavorAppName(List<String> selectedFlavors) {
+  Map<String, String>? _getFlavorAppName(List<String> selectedFlavors) {
     return inputParser(
       prompt: 'app_name',
       emptyError: 'Add app name',
       mixMatchError: 'App name mismatch',
       options: selectedFlavors,
+      allowEmpty: true,
       validator: (p0) {
         if (p0.any((element) => element.isEmpty)) {
           throw ValidationError('app name cannot be empty');
         }
         return true;
       },
-    )!;
+    );
   }
 
-  Map<String, String> _getFlavorAppId(List<String> selectedFlavors) {
+  Map<String, String> _getFlavorAppId(
+      List<String> selectedFlavors, String package) {
     return inputParser(
       prompt: 'application id/bundle id',
       emptyError: 'Add id',
       mixMatchError: 'Id name mismatch',
       options: selectedFlavors,
-      defaultValue: 'com.example',
+      defaultValue: package,
       validator: (p0) {
         if (p0.length > 1 && p0.length != selectedFlavors.length ||
             p0.any((element) => element.isEmpty)) {
@@ -324,10 +329,9 @@ class FlavorManager {
 
   List<CustomResValueModel>? _getResValuesSuffix(List<String> selectedFlavors) {
     final response = process.getConfirmation(
-      prompt: 'Add resValues?',
-      defaultValue: true,
+      prompt: 'Do you want to add resValues?',
+      defaultValue: false,
     );
-    print(response);
     if (response) {
       return _collectResValuesByFlavor(selectedFlavors);
     }
@@ -389,10 +393,9 @@ class FlavorManager {
   List<CustomResValueModel>? _getBuildConfigFieldValues(
       List<String> selectedFlavors) {
     final response = process.getConfirmation(
-      prompt: 'Add build config fields?',
-      defaultValue: true,
+      prompt: 'Do you want to add build config fields?',
+      defaultValue: false,
     );
-    print(response);
     if (response) {
       return _collectBuildConfigFieldValuesByFlavor(selectedFlavors);
     }
@@ -497,6 +500,7 @@ class FlavorManager {
   void createFlavor(FlutterAppDetails appDetails) {
     _installDependencies();
     _createYamlFile(appDetails);
+    _installFlavorizr(appDetails);
   }
 
   void _installDependencies() {
@@ -537,6 +541,39 @@ class FlavorManager {
   }
 
   void _createYamlFile(FlutterAppDetails appDetails) {
+    appDetails = _addFirebaseFlavors(appDetails);
     yamlGenerator.generateFlavorizrConfig(appDetails);
+  }
+
+  FlutterAppDetails _addFirebaseFlavors(FlutterAppDetails flutterAppDetails) {
+    final appPath = flutterAppDetails.path;
+    flutterAppDetails.flavorModel!.firebaseConfig = {};
+    for (var flavor in flutterAppDetails.flavorModel!.environmentOptions) {
+      final googleJsonPath =
+          '${appPath}/android/app/${flavor}/google-services.json';
+      final infoPlistPath =
+          '${appPath}/ios/Runner/config/${flavor}/GoogleService-Info.plist';
+      flutterAppDetails.flavorModel!.firebaseConfig![flavor] = {
+        'iosPath': infoPlistPath,
+        'androidPath': googleJsonPath,
+      };
+      // flutterAppDetails.flavorModel!.firebaseConfig = {
+      //   '$flavor': {
+      //     'iosPath': infoPlistPath,
+      //     'androidPath': googleJsonPath,
+      //   },
+      // };
+    }
+    print(flutterAppDetails.flavorModel!.firebaseConfig);
+    return flutterAppDetails;
+  }
+
+  Future<void> _installFlavorizr(FlutterAppDetails appDetails) async {
+    await FlutterCli.pubAdd(['flutter_flavorizr'], appDetails.path,
+        isDev: true);
+    await FlutterCli.pubRun(
+      ['flutter_flavorizr'],
+      appDetails.path,
+    );
   }
 }

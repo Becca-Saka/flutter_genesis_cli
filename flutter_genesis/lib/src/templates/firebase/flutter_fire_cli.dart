@@ -10,7 +10,9 @@ import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:flutter_genesis/src/shared/validators.dart';
 import 'package:flutter_genesis/src/templates/firebase/firebase_package_manager.dart';
+import 'package:flutter_genesis/src/templates/flavors/flavors_manager.dart';
 import 'package:flutter_genesis/src/templates/token.dart';
+import 'package:tint/tint.dart';
 import 'package:uuid/uuid.dart';
 
 class FirebaseAppException implements Exception {
@@ -25,18 +27,63 @@ class FlutterFireCli {
   final DatabaseHelper databaseHelper = DatabaseHelper();
   List<FirebaseOptions> selectedOptions = [];
 
-  Future<FirebaseAppDetails> getFirebaseAppDetails(String name) async {
-    getOptions();
+  Future<FirebaseAppDetails> getFirebaseAppDetails(
+    String appName,
+    FlavorModel? flavors,
+  ) async {
     String firebaseToken = await getFirebaseCliToken();
-    final projectId = await getAppId(firebaseToken, name);
+    getOptions();
     FirebaseAppDetails details = FirebaseAppDetails(
-      projectId: projectId.$1,
-      projectName: projectId.$2,
+      // projectId: projectId.$1,
+      // projectName: projectId.$2,
       cliToken: firebaseToken,
       selectedOptions: selectedOptions,
     );
+    if (useFlavors()) {
+      assert(flavors != null);
+      final namesByFlavor = flavors!.name;
+      final flavorsEnvironment = flavors.environmentOptions;
+      details.flavorConfigs ??= [];
+      for (var i = 0; i < flavorsEnvironment.length; i++) {
+        final name = namesByFlavor?.entries.elementAt(i).value ?? appName;
+        final flavor = flavorsEnvironment[i];
+        m('Configuring Firebase project for' + ' $name'.bold() + '-${flavor}');
+        final projectId = await getAppId(
+          firebaseToken,
+          '${name}-${flavor}',
+        );
+        details.flavorConfigs!.add(FirebaseFlavorConfig(
+          flavor: flavor,
+          projectId: projectId.$1,
+          projectName: projectId.$2,
+        ));
+      }
+
+      // await process.delayProcess(30, 'Waiting for Firebase Project Sync');
+    } else {
+      final projectId = await getAppId(firebaseToken, appName);
+      details.copyWith(
+        projectId: projectId.$1,
+        projectName: projectId.$2,
+      );
+    }
+
+    // FirebaseAppDetails details = FirebaseAppDetails(
+    //   projectId: projectId.$1,
+    //   projectName: projectId.$2,
+    //   cliToken: firebaseToken,
+    //   selectedOptions: selectedOptions,
+    // );
     details = await _loadFirebaseOptions(details);
     return details;
+  }
+
+  bool useFlavors() {
+    return process.getConfirmation(
+      prompt:
+          'Would you like to generate different firebase project for your flavors?',
+      defaultValue: false,
+    );
   }
 
   void getOptions() {
@@ -63,7 +110,7 @@ class FlutterFireCli {
     } else {
       firebaseToken = process.getInput(
         prompt: 'Enter your Firebase CLI token',
-        initialText: token2,
+        initialText: tokenAdire,
         validator: (val) => AppValidators.notNullAndNotEmpty(val,
             message: 'Token cannot be empty'),
       );
@@ -76,10 +123,11 @@ class FlutterFireCli {
   }
 
   Future<(String, String)> getAppId(String token, String name) async {
-    final appId = await _listProject(token);
     // return (appId['id']! as String, appId['name']! as String);
+    // var appId = null;
     //TODO: solve FirebaseProjectNotFoundException error to create a new project
-
+    m('Listing existing firebase projects');
+    final appId = await _listProject(token, name);
     if (appId == null) {
       return _createAppId(token, name);
     } else {
@@ -87,31 +135,32 @@ class FlutterFireCli {
     }
   }
 
-  Future<Map<dynamic, dynamic>?> _listProject(String token) async {
-    final result = await process.run(
-      'firebase',
-      streamInput: false,
-      arguments: ['projects:list', '--token', '$token'],
-      showInlineResult: false,
-      showSpinner: true,
-      spinnerMessage: (done) =>
-          done ? 'Gotten Firebase projects' : 'Gathering Firebase projects',
-    );
-
-    final projectDetails = _extractProjectDetails(result!.stdout);
+  List<Map<dynamic, dynamic>>? projectDetails;
+  Future<Map<dynamic, dynamic>?> _listProject(String token, String name) async {
+    if (projectDetails == null) {
+      final result = await process.run(
+        'firebase',
+        streamInput: false,
+        arguments: ['projects:list', '--token', '$token'],
+        showInlineResult: false,
+        showSpinner: true,
+        spinnerMessage: (done) =>
+            done ? 'Gotten Firebase projects' : 'Gathering Firebase projects',
+      );
+      projectDetails = _extractProjectDetails(result!.stdout);
+    }
 
     final projectIndex = process.getSelectInput(
-      prompt:
-          'Select a Firebase project to configure your Flutter application with',
-      options: projectDetails.map((e) => '${e['name']}(${e['id']})').toList()
+      prompt: 'Select a Firebase project to configure ${name} with',
+      options: projectDetails!.map((e) => '${e['name']}(${e['id']})').toList()
         ..add('<create a new project>'),
     );
 
-    if (projectIndex == projectDetails.length) {
+    if (projectIndex == projectDetails!.length) {
       return null;
     } else {
-      m('Configuring Flutter with ${projectDetails[projectIndex]}');
-      return projectDetails[projectIndex];
+      m('Configuring Flutter with ${projectDetails![projectIndex]}');
+      return projectDetails![projectIndex];
     }
   }
 
@@ -125,8 +174,8 @@ class FlutterFireCli {
       );
       String uniqueID = Uuid().v4();
       uniqueID = uniqueID.substring(0, 8);
-      final projectId = '${name}';
-      // final projectId = '${name + '-' + uniqueID}';
+      // final projectId = '${name}';
+      final projectId = '${name + '-' + uniqueID}';
       await process.run('firebase',
           arguments: [
             'projects:create',
@@ -145,7 +194,9 @@ class FlutterFireCli {
               throw FirebaseAppException('Firebase project creation failed'));
 
       m('Configuring Flutter with $projectId ($name)');
-      await process.delayProcess(30, 'Waiting for Firebase Project Sync');
+      // if (!isFlavor) {
+      await process.delayProcess(25, 'Waiting for Firebase Project Sync');
+      // }
 
       return (projectId, name);
     } on FirebaseAppException catch (error) {
@@ -167,15 +218,13 @@ class FlutterFireCli {
   }
 
   Future<void> _configure(FlutterAppDetails flutterAppDetails) async {
-    if (flutterAppDetails.firebaseAppDetails != null) {
+    final firebaseAppDetails = flutterAppDetails.firebaseAppDetails;
+    if (firebaseAppDetails != null) {
       final dir = Directory(flutterAppDetails.path);
       m('Configuring FlutterFire $dir');
       final export = [
         'export PATH="\$PATH":"<span class="math-inline">HOME/.pub-cache/bin" '
       ];
-      final flutterFire =
-          'flutterfire configure --project=${flutterAppDetails.firebaseAppDetails?.projectId} --platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')} --token ${flutterAppDetails.firebaseAppDetails?.cliToken}';
-
       await process.run('bash',
           arguments: ['-c', 'dart pub global activate flutterfire_cli'],
           workingDirectory: flutterAppDetails.path);
@@ -184,20 +233,129 @@ class FlutterFireCli {
         arguments: ['-l', '-c', ...export],
         workingDirectory: flutterAppDetails.path,
       );
-      await process.run(
-        'bash',
-        streamInput: false,
-        arguments: ['-l', '-c', flutterFire],
-        showSpinner: true,
-        spinnerMessage: (done) => done
-            ? 'Configured Firebase project'
-            : 'Configuring Firebase project',
-        workingDirectory: flutterAppDetails.path,
-      );
+
+      // final flutterFire =
+      //     'flutterfire configure --project=${flutterAppDetails.firebaseAppDetails?.projectId} --platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')} --token ${flutterAppDetails.firebaseAppDetails?.cliToken}';
+
+      // await process.run(
+      //   'bash',
+      //   streamInput: false,
+      //   arguments: ['-l', '-c', flutterFire],
+      //   showSpinner: true,
+      //   spinnerMessage: (done) => done
+      //       ? 'Configured Firebase project'
+      //       : 'Configuring Firebase project',
+      //   workingDirectory: flutterAppDetails.path,
+      // );
+      // ----------------------------------------------------------------
+
+//       flutterfire configure -i com.epseelon.buzzwordbingo.dev \
+// -a com.epseelon.buzzwordbingo.dev \
+// -o lib/firebase/dev/firebase_options.dart \
+// --no-apply-gradle-plugins \
+// --no-app-id-json
+
+//       flutterfire config
+// --project="abc"
+// --out=lib/firebase/dev/firebase_options.dart
+// --ios-bundle-id=com.***.dev
+// --android-package-name=com.***dev
+// --ios-build-config=Release-dev
+// --ios-out=ios/config/dev/GoogleService-Info.plist
+      final token = firebaseAppDetails.cliToken;
+      final platforms =
+          flutterAppDetails.platforms.map((e) => e.name).toList().join(',');
+      final flavorModel = flutterAppDetails.flavorModel;
+      final flavorConfigs = firebaseAppDetails.flavorConfigs;
+      final appPath = flutterAppDetails.path;
+      if (flavorModel != null && flavorConfigs != null) {
+        for (int i = 0; i < flavorModel.environmentOptions.length; i++) {
+          final flavor = flavorModel.environmentOptions[i];
+          String args = ' --out=lib/firebase/$flavor/firebase_options.dart';
+          args += ' --android-package-name=${flavorModel.packageId![flavor]}';
+          args += ' --ios-bundle-id=${flavorModel.packageId![flavor]}';
+          final firebaseFlavorConfig =
+              flavorConfigs.firstWhere((element) => element.flavor == flavor);
+          await _configureFirebase(
+            projectId: firebaseFlavorConfig.projectId,
+            token: token,
+            args: args,
+            platforms: platforms,
+            path: appPath,
+          );
+          await _moveFiles(
+            appPath: appPath,
+            newPath: '${appPath}/ios/Runner/config/${flavor}',
+            oldPath: '${appPath}/ios/Runner/GoogleService-Info.plist',
+          );
+          await _moveFiles(
+            appPath: appPath,
+            newPath: '${appPath}/ios/config/${flavor}',
+            oldPath: '${appPath}/ios/firebase_app_id_file.json',
+          );
+
+          await _moveFiles(
+            appPath: appPath,
+            newPath: '${appPath}/android/app/${flavor}',
+            oldPath: '${appPath}/android/app/google-services.json',
+          );
+        }
+      } else {
+        await _configureFirebase(
+          projectId: firebaseAppDetails.projectId!,
+          token: token,
+          args: '',
+          platforms: platforms,
+          path: appPath,
+        );
+      }
       m('Configuring done');
     } else {
       m('Firebase project not defined, skipping');
     }
+  }
+
+  Future<void> _moveFiles({
+    required String newPath,
+    required String oldPath,
+    required String appPath,
+  }) async {
+    if (!Directory(newPath).existsSync()) {
+      Directory(newPath).createSync(recursive: true);
+    }
+    await process.run(
+      'mv',
+      arguments: [
+        oldPath,
+        newPath,
+      ],
+      workingDirectory: appPath,
+      streamInput: false,
+    );
+  }
+
+  Future<void> _configureFirebase({
+    required String projectId,
+    required String token,
+    required String args,
+    required String platforms,
+    required String path,
+  }) async {
+    String flutterFire = 'flutterfire configure --project=${projectId}';
+    flutterFire += args;
+    flutterFire += ' --platforms=${platforms} --token ${token}';
+    // final flutterFire =
+    //     'flutterfire configure --project=${flutterAppDetails.firebaseAppDetails?.projectId} --platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')} --token ${flutterAppDetails.firebaseAppDetails?.cliToken}';
+
+    await process.run(
+      'bash',
+      streamInput: true,
+      arguments: ['-l', '-c', flutterFire],
+      showSpinner: true,
+      spinnerMessage: (done) =>
+          done ? 'Configured Firebase project' : 'Configuring Firebase project',
+      workingDirectory: path,
+    );
   }
 
   List<Map> _extractProjectDetails(String projectInfoText) {

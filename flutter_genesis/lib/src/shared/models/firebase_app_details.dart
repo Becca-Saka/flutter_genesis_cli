@@ -47,19 +47,22 @@ enum AuthenticationMethod {
 }
 
 class FirebaseAppDetails {
-  final String projectId;
-  final String projectName;
+  final String? projectId;
+  final String? projectName;
   final String cliToken;
+  List<FirebaseFlavorConfig>? flavorConfigs;
   List<FirebaseOptions> selectedOptions;
   List<AuthenticationMethod>? authenticationMethods;
 
   FirebaseAppDetails({
-    required this.selectedOptions,
-    required this.projectId,
-    required this.projectName,
+    this.projectId,
+    this.projectName,
     required this.cliToken,
+    required this.selectedOptions,
+    this.flavorConfigs,
     this.authenticationMethods,
-  });
+  }) : assert(
+            projectId != null && projectName != null || flavorConfigs != null);
 
   FirebaseAppDetails copyWith({
     String? projectId,
@@ -67,6 +70,7 @@ class FirebaseAppDetails {
     String? cliToken,
     List<FirebaseOptions>? selectedOptions,
     List<AuthenticationMethod>? authenticationMethods,
+    List<FirebaseFlavorConfig>? flavorConfigs,
   }) {
     return FirebaseAppDetails(
       projectId: projectId ?? this.projectId,
@@ -75,6 +79,18 @@ class FirebaseAppDetails {
       selectedOptions: selectedOptions ?? this.selectedOptions,
       authenticationMethods:
           authenticationMethods ?? this.authenticationMethods,
+      flavorConfigs: flavorConfigs ?? this.flavorConfigs,
     );
   }
+}
+
+class FirebaseFlavorConfig {
+  final String flavor;
+  final String projectId;
+  final String projectName;
+  FirebaseFlavorConfig({
+    required this.flavor,
+    required this.projectId,
+    required this.projectName,
+  });
 }

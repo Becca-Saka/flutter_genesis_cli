@@ -21,11 +21,14 @@ The Genesis of all complex apps.
 - [ ] Flavor integration
 - [ ] Google analytics extension
 - [ ] Amplify integration
+- [ ] Stripe payment
+- [ ] Google/Apple IAP 
 - [ ] Flavor
 - [ ] Native icon
 - [ ] Native splash screen
 - [ ] Dark and light mode
 - [ ] Laguage support
+- [ ] .vscdode launcher
 - [ ] add to existing project
 
 ### Firebase

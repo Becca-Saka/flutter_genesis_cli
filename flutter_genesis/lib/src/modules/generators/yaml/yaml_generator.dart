@@ -58,7 +58,7 @@ class YamlGenerator {
     final flavorModel = flutterAppDetails.flavorModel!;
     Map flavorMaps = {};
     for (var flavor in flavorModel.environmentOptions) {
-      String name = flavorModel.name![flavor]!;
+      String name = flavorModel.name?[flavor] ?? flutterAppDetails.name;
       final id = flavorModel.packageId![flavor];
       final icon = flavorModel.imagePaths?[flavor];
       name = name.toLowerCase();
@@ -84,8 +84,12 @@ class YamlGenerator {
           'applicationId': id,
           'buildConfigFields': buildConfigFields?.toMap(),
           'resValues': resValues?.toMap(),
+          'firebase': {
+            'config': flavorModel.firebaseConfig?[flavor]?['androidPath'],
+          },
           'customConfig': {
-            'versionNameSuffix': "\"${versionNameSuffix}\"",
+            'versionNameSuffix':
+                versionNameSuffix != null ? "\"${versionNameSuffix}\"" : null,
             // 'versionNameSuffix': versionNameSuffix,
             'signingConfig': signingConfig,
             'versionCode': versionCode,
@@ -96,6 +100,9 @@ class YamlGenerator {
           'bundleId': id,
           'buildSettings': buildConfigFields?.toMap(),
           'variables': resValues?.toMap(),
+          'firebase': {
+            'config': flavorModel.firebaseConfig?[flavor]?['iosPath'],
+          },
         }
       };
 
@@ -103,8 +110,8 @@ class YamlGenerator {
     }
     flavorMaps = flavorMaps.removeNullValues;
     String yaml = _writer.write({'flavors': flavorMaps});
-
-    File file = File('${Directory.current.path}/flavorizr.yaml');
+    print({'flavors': flavorMaps});
+    File file = File('${flutterAppDetails.path}/flavorizr.yaml');
     file.createSync();
     file.writeAsStringSync(yaml);
   }
