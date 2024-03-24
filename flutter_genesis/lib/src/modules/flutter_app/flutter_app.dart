@@ -8,6 +8,7 @@ import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:flutter_genesis/src/shared/validators.dart';
 import 'package:flutter_genesis/src/templates/firebase/flutter_fire_cli.dart';
+import 'package:flutter_genesis/src/templates/flavors/flavors_manager.dart';
 import 'package:flutter_genesis/src/templates/template_options.dart';
 import 'package:path/path.dart';
 
@@ -18,12 +19,15 @@ class FlutterApp {
   AdireCliProcess process = AdireCliProcess();
 
   Future<FlutterAppDetails> init() async {
+    final flavor = FlavorManager().getFlavorInfomation();
     final name = getAppName();
     final path = getPath();
     final package = getPackageName(name);
     final templates = getTemplateOptions();
     final platforms = getPlatformOptions();
     final firebaseAppDetails = await loadTemplateOptions(templates, name);
+    final flavors = FlavorManager().getFlavorInfomation();
+
     final flutterAppDetails = FlutterAppDetails(
       name: name,
       path: path,
@@ -31,6 +35,7 @@ class FlutterApp {
       templates: templates,
       platforms: platforms,
       firebaseAppDetails: firebaseAppDetails,
+      flavorModel: flavors,
     );
     return await _createApp(flutterAppDetails);
   }

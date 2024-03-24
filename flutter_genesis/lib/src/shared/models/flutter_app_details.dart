@@ -1,4 +1,5 @@
 import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
+import 'package:flutter_genesis/src/templates/flavors/flavors_manager.dart';
 import 'package:flutter_genesis/src/templates/template_options.dart';
 
 enum FlutterAppPlatform {
@@ -17,6 +18,7 @@ class FlutterAppDetails {
   final List<TemplateOptions> templates;
   final List<FlutterAppPlatform> platforms;
   final FirebaseAppDetails? firebaseAppDetails;
+  final FlavorModel? flavorModel;
   FlutterAppDetails({
     required this.name,
     required this.path,
@@ -24,6 +26,7 @@ class FlutterAppDetails {
     required this.templates,
     required this.platforms,
     required this.firebaseAppDetails,
+    required this.flavorModel,
   });
 
   FlutterAppDetails copyWith({
@@ -33,6 +36,7 @@ class FlutterAppDetails {
     List<TemplateOptions>? templates,
     List<FlutterAppPlatform>? platforms,
     FirebaseAppDetails? firebaseAppDetails,
+    FlavorModel? flavorModel,
   }) {
     return FlutterAppDetails(
       name: name ?? this.name,
@@ -41,6 +45,7 @@ class FlutterAppDetails {
       templates: templates ?? this.templates,
       platforms: platforms ?? this.platforms,
       firebaseAppDetails: firebaseAppDetails ?? this.firebaseAppDetails,
+      flavorModel: flavorModel ?? this.flavorModel,
     );
   }
 }

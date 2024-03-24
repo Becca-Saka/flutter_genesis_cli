@@ -3,6 +3,8 @@ import 'package:flutter_genesis/src/commands/process/process.dart';
 import 'package:flutter_genesis/src/modules/generators/yaml/yaml_generator.dart';
 import 'package:flutter_genesis/src/shared/extensions/lists.dart';
 import 'package:flutter_genesis/src/shared/logger.dart';
+import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
+import 'package:interact/interact.dart';
 import 'package:tint/tint.dart';
 
 class FlavorModel {
@@ -10,7 +12,7 @@ class FlavorModel {
   Map<String, String>? packageId;
   Map<String, String>? imagePaths;
   Map<String, String>? versionNameSuffix;
-  Map<String, String>? versionCodeSuffix;
+  Map<String, String>? versionCode;
   Map<String, String>? minSdkVersion;
   List<CustomResValueModel>? resValues;
   List<CustomResValueModel>? buildConfigFields;
@@ -21,7 +23,7 @@ class FlavorModel {
     this.packageId,
     this.imagePaths,
     this.versionNameSuffix,
-    this.versionCodeSuffix,
+    this.versionCode,
     this.minSdkVersion,
     this.resValues,
     this.buildConfigFields,
@@ -29,15 +31,17 @@ class FlavorModel {
 
   @override
   String toString() {
-    return 'FlavorModel(name: $name, packageId: $packageId, imagePaths: $imagePaths, versionNameSuffix: $versionNameSuffix, versionCodeSuffix: $versionCodeSuffix, minSdkVersion: $minSdkVersion, resValues: $resValues, buildConfigFields: $buildConfigFields, environmentOptions: $environmentOptions)';
+    return 'FlavorModel(name: $name, packageId: $packageId, imagePaths: $imagePaths, versionNameSuffix: $versionNameSuffix, versionCodeSuffix: $versionCode, minSdkVersion: $minSdkVersion, resValues: $resValues, buildConfigFields: $buildConfigFields, environmentOptions: $environmentOptions)';
   }
 }
 
 class CustomResValueModel {
   final String title;
+  final String flavor;
   final Map<String, String> values;
   CustomResValueModel({
     required this.title,
+    required this.flavor,
     required this.values,
   });
 
@@ -52,27 +56,31 @@ class CustomResValueModel {
 class FlavorManager {
   AdireCliProcess process = AdireCliProcess();
   YamlGenerator yamlGenerator = YamlGenerator();
-  void createFlavor() {
-    // _installDependencies();
-    _getFlavorInfomation();
-  }
 
-  void _getFlavorInfomation() {
-    final selectedFlavors = _getFlavors();
-    m('You chose flavor(s): $selectedFlavors');
-    FlavorModel model = FlavorModel(
-      environmentOptions: selectedFlavors,
+  FlavorModel? getFlavorInfomation() {
+    final response = process.getConfirmation(
+      prompt: 'Do you want app flavors?',
+      defaultValue: false,
     );
-    model.name = _getFlavorAppName(selectedFlavors);
-    model.packageId = _getFlavorAppId(selectedFlavors);
-    model.imagePaths = _getFlavorImage(selectedFlavors);
-    model.versionNameSuffix = _getFlavorVersionNameSuffix(selectedFlavors);
-    model.versionCodeSuffix = _getFlavorVersionCodeSuffix(selectedFlavors);
-    model.minSdkVersion = _getFlavorMinSdkVersionSuffix(selectedFlavors);
-    model.resValues = _getResValuesSuffix(selectedFlavors);
-    model.buildConfigFields = _getBuildConfigFieldValues(selectedFlavors);
+    if (response) {
+      final selectedFlavors = _getFlavors();
+      m('You chose flavor(s): $selectedFlavors');
+      FlavorModel model = FlavorModel(
+        environmentOptions: selectedFlavors,
+      );
+      model.name = _getFlavorAppName(selectedFlavors);
+      model.packageId = _getFlavorAppId(selectedFlavors);
+      model.imagePaths = _getFlavorImage(selectedFlavors);
+      model.versionNameSuffix = _getFlavorVersionNameSuffix(selectedFlavors);
+      model.versionCode = _getFlavorVersionCodeSuffix(selectedFlavors);
+      model.minSdkVersion = _getFlavorMinSdkVersionSuffix(selectedFlavors);
+      model.resValues = _getResValuesSuffix(selectedFlavors);
+      model.buildConfigFields = _getBuildConfigFieldValues(selectedFlavors);
 
-    m(' flavor(s) config: ${model.toString()}}');
+      m(' flavor(s) config: ${model.toString()}}');
+      return model;
+    }
+    return null;
   }
 
   List<String> _getFlavors() {
@@ -94,7 +102,7 @@ class FlavorManager {
     }
     if (response.length == 1) {
       e('Please select more than one flavor');
-      _getFlavorInfomation();
+      return _getFlavors();
     }
     selectedFlavors = flavorOptions.getValuesAtIndexes<String>(response);
     // m('You chose flavor(s): $selectedFlavors');
@@ -160,20 +168,30 @@ class FlavorManager {
     );
     print(response);
     if (response) {
-      return _collectResValues(selectedFlavors);
+      return _collectResValuesByFlavor(selectedFlavors);
     }
     return null;
   }
 
-  List<CustomResValueModel> _collectResValues(List<String> selectedFlavors) {
+  List<CustomResValueModel> _collectResValuesByFlavor(
+      List<String> selectedFlavors) {
     List<CustomResValueModel> customResValues = [];
+    for (var flavor in selectedFlavors) {
+      final resvalues = _collectResValues(flavor);
+      customResValues.addAll(resvalues);
+    }
+    return customResValues;
+  }
+
+  List<CustomResValueModel> _collectResValues(String flavor) {
+    List<CustomResValueModel> customResValues = [];
+
     while (true) {
       final response = process.getInput(
         prompt: '(seperated by comma) - '.grey() +
             'Enter resValues -  variable_name, type, value, [target(debug, release, profile)] for ' +
-            '(${selectedFlavors.spacedJoined})'.white().bold(),
+            '($flavor)'.white().bold(),
       );
-
       if (response == 'd' || response == 'done') {
         return customResValues;
         // break;
@@ -181,26 +199,30 @@ class FlavorManager {
       final resValues = response.split(',');
       if (resValues.length < 3) {
         e('Invalid input');
-        return _collectResValues(selectedFlavors);
+        return _collectResValues(flavor);
+      } else if (resValues.length == 4) {
+        if (resValues.last.trim() != 'debug' ||
+            resValues.last.trim() != 'release' ||
+            resValues.last.trim() != 'profile') {
+          e('Invalid target');
+          return _collectResValues(flavor);
+        }
       } else {
-        final model = CustomResValueModel(title: resValues.first, values: {
-          'type': '${resValues[1]}',
-          'value': '${resValues[2]}',
-        });
-        // final groupedMap = {
-        //   '${resValues.first}': {
-        //     'type': '${resValues[1]}',
-        //     'value': '${resValues[2]}',
-        //   }
-        // };
+        final model = CustomResValueModel(
+          title: resValues.first,
+          flavor: flavor,
+          values: {
+            'type': '${resValues[1]}',
+            'value': '${resValues[2]}',
+          },
+        );
+
         if (resValues.length > 3) {
           model.values.addEntries([MapEntry('target', resValues[3])]);
         }
         customResValues.add(model);
-        // return model;
       }
     }
-    // return null;
   }
 
   List<CustomResValueModel>? _getBuildConfigFieldValues(
@@ -211,39 +233,42 @@ class FlavorManager {
     );
     print(response);
     if (response) {
-      return _collectBuildConfigFieldValues(selectedFlavors);
+      return _collectBuildConfigFieldValuesByFlavor(selectedFlavors);
     }
     return null;
   }
 
-  List<CustomResValueModel> _collectBuildConfigFieldValues(
+  List<CustomResValueModel> _collectBuildConfigFieldValuesByFlavor(
       List<String> selectedFlavors) {
+    List<CustomResValueModel> customResValues = [];
+    for (var flavor in selectedFlavors) {
+      final resvalues = _collectBuildConfigFieldValues(flavor);
+      customResValues.addAll(resvalues);
+    }
+    return customResValues;
+  }
+
+  List<CustomResValueModel> _collectBuildConfigFieldValues(String flavor) {
     List<CustomResValueModel> customResValueModel = [];
     while (true) {
       final response = process.getInput(
         prompt: '(seperated by comma) - '.grey() +
             'Enter build config field -  field_name, type, value for ' +
-            '(${selectedFlavors.spacedJoined})'.white().bold(),
+            '($flavor)'.white().bold(),
       );
 
       if (response == 'd' || response == 'done') {
         return customResValueModel;
-        // break;
       }
       final resValues = response.split(',');
       if (resValues.length < 3) {
         e('Invalid input');
-        return _collectBuildConfigFieldValues(selectedFlavors);
+        return _collectBuildConfigFieldValues(flavor);
       } else {
-        // final groupedMap = {
-        //   '${resValues.first}': {
-        //     'type': '${resValues[1]}',
-        //     'value': '${resValues[2]}',
-        //   }
-        // };
         customResValueModel.add(
           CustomResValueModel(
             title: resValues.first,
+            flavor: flavor,
             values: {
               'type': '${resValues[1]}',
               'value': '${resValues[2]}',
@@ -284,6 +309,7 @@ class FlavorManager {
     required String emptyError,
     required String mixMatchError,
     required List<String> options,
+    bool Function(List<String>)? validator,
     String? defaultValue,
     String? terminationPhase,
     bool allowEmpty = false,
@@ -293,43 +319,41 @@ class FlavorManager {
           'Set $prompt for ' +
           '(${options.spacedJoined})'.white().bold(),
       defaultValue: defaultValue,
-      // validator: (response) {
-      //TODO:  figure out why validator doesn't work
-      //   // print('yassss');
-      //   return false;
-      //   if (response.isNotEmpty) {
-      //     if (response == terminationPhase) return true;
-      //     final flavorName = response.split(',');
-      //     if (flavorName.length != options.length) {
-      //       if (defaultValue == null) {
-      //         e('$mixMatchError');
-      //         return false;
-      //       }
-      //     }
-      //   } else {
-      //     if (allowEmpty) return true;
-      //     e(emptyError);
-      //     return false;
-      //   }
-      //   return true;
-      // },
+      validator: (response) {
+        if (response.isNotEmpty) {
+          if (response == terminationPhase) return true;
+          final flavorName = response.split(',');
+          if (flavorName.length != options.length) {
+            if (defaultValue == null) {
+              throw ValidationError(mixMatchError);
+            }
+          }
+          validator?.call(flavorName);
+        } else {
+          if (allowEmpty) return true;
+          e(emptyError);
+          throw ValidationError(emptyError);
+        }
+
+        return true;
+      },
     );
     if (response.isNotEmpty) {
       if (response == terminationPhase) return null;
       final flavorName = response.split(',');
       Map<String, String> nameMap = {};
-      if (flavorName.length != options.length) {
-        if (defaultValue == null) {
-          e('$mixMatchError');
-          return inputParser(
-            prompt: prompt,
-            emptyError: emptyError,
-            mixMatchError: mixMatchError,
-            options: options,
-            defaultValue: defaultValue,
-          );
-        }
-      }
+      // if (flavorName.length != options.length) {
+      //   if (defaultValue == null) {
+      //     e('$mixMatchError');
+      //     return inputParser(
+      //       prompt: prompt,
+      //       emptyError: emptyError,
+      //       mixMatchError: mixMatchError,
+      //       options: options,
+      //       defaultValue: defaultValue,
+      //     );
+      //   }
+      // }
       for (var i = 0; i < options.length; i++) {
         String selected = options[i];
         if (defaultValue != null) {
@@ -340,22 +364,24 @@ class FlavorManager {
       }
 
       return nameMap;
-    } else {
-      if (allowEmpty) return null;
-      e(emptyError);
-      return inputParser(
-        prompt: prompt,
-        emptyError: emptyError,
-        mixMatchError: mixMatchError,
-        options: options,
-        defaultValue: defaultValue,
-      );
     }
+    // else {
+    //   // if (allowEmpty) return null;
+    //   // e(emptyError);
+    //   // return inputParser(
+    //   //   prompt: prompt,
+    //   //   emptyError: emptyError,
+    //   //   mixMatchError: mixMatchError,
+    //   //   options: options,
+    //   //   defaultValue: defaultValue,
+    //   // );
+    // }
+    return null;
   }
 
-  void _createYamlFile() {
-    // yamlGenerator.generateFlavorizrConfig();
-    // flavorizr.yaml
+  void createFlavor(FlutterAppDetails appDetails) {
+    _installDependencies();
+    _createYamlFile(appDetails);
   }
 
   void _installDependencies() {
@@ -393,5 +419,9 @@ class FlavorManager {
     } else {
       m('xcodeproj installed, skipping');
     }
+  }
+
+  void _createYamlFile(FlutterAppDetails appDetails) {
+    yamlGenerator.generateFlavorizrConfig(appDetails);
   }
 }
