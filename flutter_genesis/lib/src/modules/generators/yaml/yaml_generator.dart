@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:flutter_genesis/src/shared/extensions/map.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 
 import 'yaml_writer.dart';
@@ -53,10 +54,10 @@ class YamlGenerator {
   }
 
   void generateFlavorizrConfig(FlutterAppDetails flutterAppDetails) {
-    final flavorModel = flutterAppDetails.flavorModel;
-
-    final flavorMaps = {};
-    for (var flavor in flavorModel!.environmentOptions) {
+    // void generateFlavorizrConfig(FlavorModel flavorModel) {
+    final flavorModel = flutterAppDetails.flavorModel!;
+    Map flavorMaps = {};
+    for (var flavor in flavorModel.environmentOptions) {
       String name = flavorModel.name![flavor]!;
       final id = flavorModel.packageId![flavor];
       final icon = flavorModel.imagePaths?[flavor];
@@ -64,12 +65,9 @@ class YamlGenerator {
       //replace space with underscore
       name = name.replaceAll(' ', '_');
       final appMap = {
-        'app': {
-          'name': name,
-          'icon': icon,
-        }
+        'name': name,
+        'icon': icon,
       };
-      appMap.entries.first.value.removeWhere((key, value) => value == null);
 
       final buildConfigFields = flavorModel.buildConfigFields
           ?.firstWhereOrNull((element) => element.flavor == flavor);
@@ -78,17 +76,18 @@ class YamlGenerator {
       final versionNameSuffix = flavorModel.versionNameSuffix?[flavor];
       final versionCode = flavorModel.versionCode?[flavor];
       final minSdkVersion = flavorModel.minSdkVersion?[flavor];
-      // final signingConfig = flavorModel.signingConfig?[flavor];//TODO: ask for signingConfig
+      final signingConfig = flavorModel.signingConfig?[flavor];
 
-      final platformMap = {
+      var platformMap = {
         'app': appMap,
         'android': {
           'applicationId': id,
           'buildConfigFields': buildConfigFields?.toMap(),
           'resValues': resValues?.toMap(),
           'customConfig': {
-            'versionNameSuffix': versionNameSuffix,
-            // 'signingConfig': versionNameSuffix,
+            'versionNameSuffix': "\"${versionNameSuffix}\"",
+            // 'versionNameSuffix': versionNameSuffix,
+            'signingConfig': signingConfig,
             'versionCode': versionCode,
             'minSdkVersion': minSdkVersion,
           }
@@ -99,13 +98,13 @@ class YamlGenerator {
           'variables': resValues?.toMap(),
         }
       };
-      flavorMaps.addAll({
-        '$flavor': platformMap,
-      });
+
+      flavorMaps.addAll({'$flavor': platformMap});
     }
+    flavorMaps = flavorMaps.removeNullValues;
     String yaml = _writer.write({'flavors': flavorMaps});
 
-    File file = File('${Directory.current.path}/build.yaml');
+    File file = File('${Directory.current.path}/flavorizr.yaml');
     file.createSync();
     file.writeAsStringSync(yaml);
   }

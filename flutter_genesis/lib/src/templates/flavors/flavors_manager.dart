@@ -1,9 +1,12 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:io';
+
 import 'package:flutter_genesis/src/commands/process/process.dart';
 import 'package:flutter_genesis/src/modules/generators/yaml/yaml_generator.dart';
 import 'package:flutter_genesis/src/shared/extensions/lists.dart';
 import 'package:flutter_genesis/src/shared/logger.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/shared/validators.dart';
 import 'package:interact/interact.dart';
 import 'package:tint/tint.dart';
 
@@ -14,6 +17,7 @@ class FlavorModel {
   Map<String, String>? versionNameSuffix;
   Map<String, String>? versionCode;
   Map<String, String>? minSdkVersion;
+  Map<String, String>? signingConfig;
   List<CustomResValueModel>? resValues;
   List<CustomResValueModel>? buildConfigFields;
   final List<String> environmentOptions;
@@ -27,11 +31,12 @@ class FlavorModel {
     this.minSdkVersion,
     this.resValues,
     this.buildConfigFields,
+    this.signingConfig,
   });
 
   @override
   String toString() {
-    return 'FlavorModel(name: $name, packageId: $packageId, imagePaths: $imagePaths, versionNameSuffix: $versionNameSuffix, versionCodeSuffix: $versionCode, minSdkVersion: $minSdkVersion, resValues: $resValues, buildConfigFields: $buildConfigFields, environmentOptions: $environmentOptions)';
+    return 'FlavorModel(name: $name, packageId: $packageId, imagePaths: $imagePaths, versionNameSuffix: $versionNameSuffix, versionCode: $versionCode, minSdkVersion: $minSdkVersion, signingConfig: $signingConfig, resValues: $resValues, buildConfigFields: $buildConfigFields, environmentOptions: $environmentOptions)';
   }
 }
 
@@ -57,7 +62,7 @@ class FlavorManager {
   AdireCliProcess process = AdireCliProcess();
   YamlGenerator yamlGenerator = YamlGenerator();
 
-  FlavorModel? getFlavorInfomation() {
+  Future<FlavorModel?> getFlavorInfomation() async {
     final response = process.getConfirmation(
       prompt: 'Do you want app flavors?',
       defaultValue: false,
@@ -70,10 +75,11 @@ class FlavorManager {
       );
       model.name = _getFlavorAppName(selectedFlavors);
       model.packageId = _getFlavorAppId(selectedFlavors);
-      model.imagePaths = _getFlavorImage(selectedFlavors);
+      model.imagePaths = await _getFlavorImage(selectedFlavors);
       model.versionNameSuffix = _getFlavorVersionNameSuffix(selectedFlavors);
       model.versionCode = _getFlavorVersionCodeSuffix(selectedFlavors);
       model.minSdkVersion = _getFlavorMinSdkVersionSuffix(selectedFlavors);
+      model.signingConfig = _getSigningConfig(selectedFlavors);
       model.resValues = _getResValuesSuffix(selectedFlavors);
       model.buildConfigFields = _getBuildConfigFieldValues(selectedFlavors);
 
@@ -109,56 +115,211 @@ class FlavorManager {
     return selectedFlavors;
   }
 
+  List<String> _getCustomFlavors() {
+    final response = process.getInput(
+      prompt: 'Add a custom flavor(s), (seperated by comma)',
+    );
+    final flavors = response.split(',');
+    if (flavors.length == 1) {
+      e('Please select more than one flavor');
+      _getCustomFlavors();
+    }
+    return flavors;
+  }
+
   Map<String, String> _getFlavorAppName(List<String> selectedFlavors) {
     return inputParser(
       prompt: 'app_name',
-      emptyError: 'Add flavor name',
-      mixMatchError: 'Flavor name mismatch',
+      emptyError: 'Add app name',
+      mixMatchError: 'App name mismatch',
       options: selectedFlavors,
+      validator: (p0) {
+        if (p0.any((element) => element.isEmpty)) {
+          throw ValidationError('app name cannot be empty');
+        }
+        return true;
+      },
     )!;
   }
 
   Map<String, String> _getFlavorAppId(List<String> selectedFlavors) {
     return inputParser(
-      prompt: 'package name/bundle id',
+      prompt: 'application id/bundle id',
       emptyError: 'Add id',
       mixMatchError: 'Id name mismatch',
       options: selectedFlavors,
       defaultValue: 'com.example',
+      validator: (p0) {
+        if (p0.length > 1 && p0.length != selectedFlavors.length ||
+            p0.any((element) => element.isEmpty)) {
+          throw ValidationError('Invalid application id');
+        }
+        return p0.every((packageName) =>
+            AppValidators.isValidFlutterPackageName(packageName.trim()));
+      },
     )!;
+  }
+
+  Future<Map<String, String>?> _getFlavorImage(
+      List<String> selectedFlavors) async {
+    Map<String, String> paths = {};
+    final response = process.getConfirmation(
+      prompt: 'Do you want app flavors icons?',
+      defaultValue: false,
+    );
+    if (response) {
+      for (var flavor in selectedFlavors) {
+        final response = await _getFlavorImageByFlavor(
+          flavor,
+          paths.isNotEmpty ? paths.entries.last.value : null,
+        );
+
+        paths[flavor] = response;
+      }
+
+      return paths.entries.isNotEmpty ? paths : null;
+    }
+    return null;
+  }
+
+  Future<String> _getFlavorImageByFlavor(
+    String flavor,
+    String? lastPath,
+  ) async {
+    final response = process.getInput(
+      prompt: ' Set app icon path for $flavor',
+      defaultValue: lastPath,
+      validator: (p0) => AppValidators.checkValidAppIconPath(p0.trim()),
+    );
+    if (!(await File(response).exists())) {
+      e('file does not exist');
+      return _getFlavorImageByFlavor(flavor, lastPath);
+    } else {
+      return response;
+    }
   }
 
   Map<String, String>? _getFlavorVersionNameSuffix(
       List<String> selectedFlavors) {
-    return inputParser(
-      prompt: 'versionNameSuffix',
-      emptyError: 'Add versionNameSuffix',
-      mixMatchError: 'versionNameSuffix mismatch',
-      options: selectedFlavors,
-      allowEmpty: true,
+    final response = process.getConfirmation(
+      prompt: 'Do you want app flavors version name?',
+      defaultValue: false,
     );
+    if (response) {
+      return inputParser(
+        prompt: 'versionNameSuffix',
+        emptyError: 'Add versionNameSuffix',
+        mixMatchError: 'versionNameSuffix mismatch',
+        options: selectedFlavors,
+        allowEmpty: true,
+        validator: (p0) {
+          if (p0.isNotEmpty && p0.length != selectedFlavors.length ||
+              p0.any((element) => element.isEmpty)) {
+            throw ValidationError('Invalid version name suffix');
+          }
+          return true;
+        },
+      );
+    }
+    return null;
   }
 
   Map<String, String>? _getFlavorVersionCodeSuffix(
       List<String> selectedFlavors) {
-    return inputParser(
-      prompt: 'versionCode',
-      emptyError: 'Add versionCode',
-      mixMatchError: 'versionCode mismatch',
-      options: selectedFlavors,
-      allowEmpty: true,
+    final response = process.getConfirmation(
+      prompt: 'Do you want app flavors version code?',
+      defaultValue: false,
     );
+    if (response) {
+      return inputParser(
+        prompt: 'versionCode',
+        emptyError: 'Add versionCode',
+        mixMatchError: 'versionCode mismatch',
+        options: selectedFlavors,
+        allowEmpty: true,
+        validator: (p0) {
+          if (p0.isNotEmpty && p0.length != selectedFlavors.length ||
+              p0.any((element) => element.isEmpty)) {
+            throw ValidationError('Invalid version code suffix');
+          }
+          if (p0.any((element) => int.tryParse(element.trim()) == null)) {
+            throw ValidationError('version code must be an integer');
+          }
+          return true;
+        },
+      );
+    }
+    return null;
   }
 
   Map<String, String>? _getFlavorMinSdkVersionSuffix(
       List<String> selectedFlavors) {
-    return inputParser(
-      prompt: 'android minSdkVersion',
-      emptyError: 'Add android minSdkVersion',
-      mixMatchError: 'minSdkVersion mismatch',
-      options: selectedFlavors,
-      allowEmpty: true,
+    final response = process.getConfirmation(
+      prompt: 'Do you want app flavors min sdk version',
+      defaultValue: false,
     );
+    if (response) {
+      return inputParser(
+        prompt: 'android minSdkVersion',
+        emptyError: 'Add android minSdkVersion',
+        mixMatchError: 'minSdkVersion mismatch',
+        options: selectedFlavors,
+        allowEmpty: true,
+        validator: (p0) {
+          if (p0.isNotEmpty) {
+            if (p0.length != selectedFlavors.length ||
+                p0.any((element) => element.isEmpty)) {
+              throw ValidationError('Invalid minSdkVersion');
+            }
+            if (p0.any((element) => int.tryParse(element.trim()) == null)) {
+              throw ValidationError('minSdkVersion must be an integer');
+            }
+          }
+          return true;
+        },
+      );
+    }
+    return null;
+  }
+
+  Map<String, String>? _getSigningConfig(List<String> selectedFlavors) {
+    final response = process.getConfirmation(
+      prompt: 'Do you want app flavors signing config?',
+      defaultValue: false,
+    );
+    if (response) {
+      Map<String, String> cofigs = {};
+      for (var flavor in selectedFlavors) {
+        final response = _getSigningConfigByFlavor(
+          flavor,
+          cofigs.isNotEmpty ? cofigs.entries.last.value : null,
+        );
+
+        cofigs[flavor] = "\"${response}\"";
+        // cofigs[flavor] = response;
+      }
+
+      return cofigs.entries.isNotEmpty ? cofigs : null;
+    }
+    return null;
+  }
+
+  String _getSigningConfigByFlavor(
+    String flavor,
+    String? lastConfig,
+  ) {
+    final response = process.getInput(
+      prompt: ' Set signingConfig for $flavor',
+      defaultValue: lastConfig,
+      // validator: (p0) {
+      //   if (p0.isEmpty) {
+      //     throw ValidationError('Invalid signing config');
+      //   }
+      //   return true;
+      // },
+    );
+
+    return response;
   }
 
   List<CustomResValueModel>? _getResValuesSuffix(List<String> selectedFlavors) {
@@ -176,6 +337,7 @@ class FlavorManager {
   List<CustomResValueModel> _collectResValuesByFlavor(
       List<String> selectedFlavors) {
     List<CustomResValueModel> customResValues = [];
+    m("start entering res value for each flavor, type 'd' or 'done' to skip at any point");
     for (var flavor in selectedFlavors) {
       final resvalues = _collectResValues(flavor);
       customResValues.addAll(resvalues);
@@ -189,12 +351,11 @@ class FlavorManager {
     while (true) {
       final response = process.getInput(
         prompt: '(seperated by comma) - '.grey() +
-            'Enter resValues -  variable_name, type, value, [target(debug, release, profile)] for ' +
+            'Enter variable_name, type, value, [target(debug, release, profile)] for ' +
             '($flavor)'.white().bold(),
       );
       if (response == 'd' || response == 'done') {
         return customResValues;
-        // break;
       }
       final resValues = response.split(',');
       if (resValues.length < 3) {
@@ -228,7 +389,7 @@ class FlavorManager {
   List<CustomResValueModel>? _getBuildConfigFieldValues(
       List<String> selectedFlavors) {
     final response = process.getConfirmation(
-      prompt: 'Add build config fields' + '(Android only)'.grey() + '?',
+      prompt: 'Add build config fields?',
       defaultValue: true,
     );
     print(response);
@@ -241,6 +402,7 @@ class FlavorManager {
   List<CustomResValueModel> _collectBuildConfigFieldValuesByFlavor(
       List<String> selectedFlavors) {
     List<CustomResValueModel> customResValues = [];
+    m("start entering build config for each flavor, type 'd' or 'done' to skip at any point or skip a flavor");
     for (var flavor in selectedFlavors) {
       final resvalues = _collectBuildConfigFieldValues(flavor);
       customResValues.addAll(resvalues);
@@ -253,7 +415,7 @@ class FlavorManager {
     while (true) {
       final response = process.getInput(
         prompt: '(seperated by comma) - '.grey() +
-            'Enter build config field -  field_name, type, value for ' +
+            'Enter field_name, type, value for ' +
             '($flavor)'.white().bold(),
       );
 
@@ -277,31 +439,6 @@ class FlavorManager {
         );
       }
     }
-    // return null;
-  }
-
-  Map<String, String>? _getFlavorImage(List<String> selectedFlavors) {
-    Map<String, String> paths = {};
-    for (var flavor in selectedFlavors) {
-      final response = process.getInput(
-        prompt: ' Set app icon path for $flavor',
-        defaultValue: paths.isNotEmpty ? paths.entries.last.value : null,
-      );
-      paths[flavor] = response;
-    }
-    return paths.entries.isNotEmpty ? paths : null;
-  }
-
-  List<String> _getCustomFlavors() {
-    final response = process.getInput(
-      prompt: 'Add a custom flavor(s), (seperated by comma)',
-    );
-    final flavors = response.split(',');
-    if (flavors.length == 1) {
-      e('Please select more than one flavor');
-      _getCustomFlavors();
-    }
-    return flavors;
   }
 
   Map<String, String>? inputParser({
@@ -316,19 +453,19 @@ class FlavorManager {
   }) {
     final response = process.getInput(
       prompt: '(seperated by comma) - '.grey() +
-          'Set $prompt for ' +
+          'Enter $prompt for ' +
           '(${options.spacedJoined})'.white().bold(),
       defaultValue: defaultValue,
       validator: (response) {
         if (response.isNotEmpty) {
           if (response == terminationPhase) return true;
-          final flavorName = response.split(',');
-          if (flavorName.length != options.length) {
+          final responseParts = response.split(',');
+          if (responseParts.length != options.length) {
             if (defaultValue == null) {
               throw ValidationError(mixMatchError);
             }
           }
-          validator?.call(flavorName);
+          validator?.call(responseParts);
         } else {
           if (allowEmpty) return true;
           e(emptyError);
@@ -342,40 +479,18 @@ class FlavorManager {
       if (response == terminationPhase) return null;
       final flavorName = response.split(',');
       Map<String, String> nameMap = {};
-      // if (flavorName.length != options.length) {
-      //   if (defaultValue == null) {
-      //     e('$mixMatchError');
-      //     return inputParser(
-      //       prompt: prompt,
-      //       emptyError: emptyError,
-      //       mixMatchError: mixMatchError,
-      //       options: options,
-      //       defaultValue: defaultValue,
-      //     );
-      //   }
-      // }
+
       for (var i = 0; i < options.length; i++) {
         String selected = options[i];
         if (defaultValue != null) {
-          nameMap.addAll({'$selected': response});
+          nameMap.addAll({'$selected': response.trim()});
         } else {
-          nameMap.addAll({'$selected': flavorName[i]});
+          nameMap.addAll({'$selected': flavorName[i].trim()});
         }
       }
 
       return nameMap;
     }
-    // else {
-    //   // if (allowEmpty) return null;
-    //   // e(emptyError);
-    //   // return inputParser(
-    //   //   prompt: prompt,
-    //   //   emptyError: emptyError,
-    //   //   mixMatchError: mixMatchError,
-    //   //   options: options,
-    //   //   defaultValue: defaultValue,
-    //   // );
-    // }
     return null;
   }
 

@@ -25,6 +25,17 @@ class AppValidators {
     return true;
   }
 
+  static bool checkValidAppIconPath(String? value) {
+    if (value == null || value.isEmpty) {
+      throw ValidationError('App icon path must not be empty');
+    }
+    if (!value.endsWith('.png')) {
+      throw ValidationError('App icon path must point to a .png file');
+    }
+
+    return true;
+  }
+
   static bool notNullAndNotEmpty(String? value,
       {String message = 'Value cannot be null or empty'}) {
     if (value == null || value.isEmpty) {

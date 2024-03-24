@@ -19,14 +19,17 @@ class FlutterApp {
   AdireCliProcess process = AdireCliProcess();
 
   Future<FlutterAppDetails> init() async {
-    final flavor = FlavorManager().getFlavorInfomation();
+    final flavors = await FlavorManager().getFlavorInfomation();
+
     final name = getAppName();
-    final path = getPath();
     final package = getPackageName(name);
+    // final name = flavors != null ? null : getAppName();
+    // final package = flavors != null ? null : getPackageName(name);
+    final path = getPath();
     final templates = getTemplateOptions();
     final platforms = getPlatformOptions();
     final firebaseAppDetails = await loadTemplateOptions(templates, name);
-    final flavors = FlavorManager().getFlavorInfomation();
+    // final flavors = FlavorManager().getFlavorInfomation();
 
     final flutterAppDetails = FlutterAppDetails(
       name: name,
