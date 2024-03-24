@@ -62,7 +62,7 @@ class FlutterFireCli {
       // await process.delayProcess(30, 'Waiting for Firebase Project Sync');
     } else {
       final projectId = await getAppId(firebaseToken, appName);
-      details.copyWith(
+      details = details.copyWith(
         projectId: projectId.$1,
         projectName: projectId.$2,
       );
@@ -234,34 +234,6 @@ class FlutterFireCli {
         workingDirectory: flutterAppDetails.path,
       );
 
-      // final flutterFire =
-      //     'flutterfire configure --project=${flutterAppDetails.firebaseAppDetails?.projectId} --platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')} --token ${flutterAppDetails.firebaseAppDetails?.cliToken}';
-
-      // await process.run(
-      //   'bash',
-      //   streamInput: false,
-      //   arguments: ['-l', '-c', flutterFire],
-      //   showSpinner: true,
-      //   spinnerMessage: (done) => done
-      //       ? 'Configured Firebase project'
-      //       : 'Configuring Firebase project',
-      //   workingDirectory: flutterAppDetails.path,
-      // );
-      // ----------------------------------------------------------------
-
-//       flutterfire configure -i com.epseelon.buzzwordbingo.dev \
-// -a com.epseelon.buzzwordbingo.dev \
-// -o lib/firebase/dev/firebase_options.dart \
-// --no-apply-gradle-plugins \
-// --no-app-id-json
-
-//       flutterfire config
-// --project="abc"
-// --out=lib/firebase/dev/firebase_options.dart
-// --ios-bundle-id=com.***.dev
-// --android-package-name=com.***dev
-// --ios-build-config=Release-dev
-// --ios-out=ios/config/dev/GoogleService-Info.plist
       final token = firebaseAppDetails.cliToken;
       final platforms =
           flutterAppDetails.platforms.map((e) => e.name).toList().join(',');

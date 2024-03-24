@@ -22,13 +22,12 @@ class CreateApp extends Command {
     if (flutterAppDetails.firebaseAppDetails != null) {
       await FlutterFireCli.instance.initializeFirebase(flutterAppDetails);
     }
-
+    if (flutterAppDetails.flavorModel != null) {
+      await FlavorManager().createFlavor(flutterAppDetails);
+    }
     await _copyFiles(flutterAppDetails);
     _removeCode(flutterAppDetails);
     _postCreate(flutterAppDetails);
-    if (flutterAppDetails.flavorModel != null) {
-      FlavorManager().createFlavor(flutterAppDetails);
-    }
   }
 
   Future<void> _copyFiles(FlutterAppDetails flutterAppDetails) async {

@@ -497,15 +497,19 @@ class FlavorManager {
     return null;
   }
 
-  void createFlavor(FlutterAppDetails appDetails) {
-    _installDependencies();
+  Future<void> createFlavor(FlutterAppDetails appDetails) async {
+    await _installDependencies();
     _createYamlFile(appDetails);
-    _installFlavorizr(appDetails);
+    await _installFlavorizr(appDetails);
   }
 
-  void _installDependencies() {
-    _installRuby();
-    _installXcodeproj();
+  void _addToIgnore() {
+    // echo 'application/cache' >> .gitignore
+    // process.run(executable)
+  }
+  Future<void> _installDependencies() async {
+    await _installRuby();
+    // await _installXcodeproj();
   }
 
   Future<void> _installRuby() async {
@@ -548,32 +552,44 @@ class FlavorManager {
   FlutterAppDetails _addFirebaseFlavors(FlutterAppDetails flutterAppDetails) {
     final appPath = flutterAppDetails.path;
     flutterAppDetails.flavorModel!.firebaseConfig = {};
+
     for (var flavor in flutterAppDetails.flavorModel!.environmentOptions) {
-      final googleJsonPath =
-          '${appPath}/android/app/${flavor}/google-services.json';
-      final infoPlistPath =
-          '${appPath}/ios/Runner/config/${flavor}/GoogleService-Info.plist';
-      flutterAppDetails.flavorModel!.firebaseConfig![flavor] = {
-        'iosPath': infoPlistPath,
-        'androidPath': googleJsonPath,
-      };
-      // flutterAppDetails.flavorModel!.firebaseConfig = {
-      //   '$flavor': {
+      if (flutterAppDetails.firebaseAppDetails?.flavorConfigs != null) {
+        final googleJsonPath =
+            '${appPath}/android/app/${flavor}/google-services.json';
+        final infoPlistPath =
+            '${appPath}/ios/Runner/config/${flavor}/GoogleService-Info.plist';
+        flutterAppDetails.flavorModel!.firebaseConfig![flavor] = {
+          'iosPath': infoPlistPath,
+          'androidPath': googleJsonPath,
+        };
+
+        print(flutterAppDetails.flavorModel!.firebaseConfig);
+      }
+      // else {
+      //   final googleJsonPath = '${appPath}/android/app/google-services.json';
+      //   final infoPlistPath = '${appPath}/ios/Runner/GoogleService-Info.plist';
+      //   flutterAppDetails.flavorModel!.firebaseConfig![flavor] = {
       //     'iosPath': infoPlistPath,
       //     'androidPath': googleJsonPath,
-      //   },
-      // };
+      //   };
+      // }
     }
-    print(flutterAppDetails.flavorModel!.firebaseConfig);
     return flutterAppDetails;
   }
 
   Future<void> _installFlavorizr(FlutterAppDetails appDetails) async {
-    await FlutterCli.pubAdd(['flutter_flavorizr'], appDetails.path,
-        isDev: true);
-    await FlutterCli.pubRun(
-      ['flutter_flavorizr'],
-      appDetails.path,
+    await process.run(
+      'dart',
+      streamInput: false,
+      arguments: ['pub', 'add', '-d', 'flutter_flavorizr'],
+      workingDirectory: appDetails.path,
+      runInShell: true,
     );
+
+    await AdireCliProcess().delayProcess(5, 'wait');
+    await FlutterCli.pubRun([
+      'flutter_flavorizr',
+    ], appDetails.path);
   }
 }

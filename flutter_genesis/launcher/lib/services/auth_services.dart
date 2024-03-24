@@ -5,32 +5,16 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:launcher/exceptions/auth_exception.dart';
 import 'package:launcher/models/user_model.dart';
 
-class FirebaseService {
+class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final _googleSignIn = GoogleSignIn(
-    scopes: ['email'],
-  );
+  final _googleSignIn = GoogleSignIn(scopes: ['email']);
 
-  Future<bool> createAccount(String email, String password,
-      [bool verify = true]) async {
+  Future<bool> createAccount(String email, String password) async {
     try {
-      final user = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      debugPrint('user: $user');
-      if (user.user != null) {
-        await _firestore.collection('users').doc(user.user!.uid).set({
-          'uid': user.user!.uid,
-          'email': email,
-        });
-        if (verify) {
-          user.user?.sendEmailVerification();
-        }
-        return true;
-      }
-      return false;
+      await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      return true;
     } on FirebaseAuthException catch (e) {
       final message = AuthExceptionHandler.handleFirebaseAuthException(e);
       throw AuthException(message);
@@ -40,36 +24,57 @@ class FirebaseService {
     }
   }
 
-  Future<UserModel> login(String email, String password,
-      [bool verify = true]) async {
+  Future<bool> saveUserDetails({
+    required String uid,
+    required String email,
+  }) async {
     try {
-      final user = await _auth.signInWithEmailAndPassword(
+      await _firestore.collection('users').doc(uid).set({
+        'uid': uid,
+        'email': email,
+      });
+
+      return true;
+    } on FirebaseAuthException catch (e) {
+      final message = AuthExceptionHandler.handleFirebaseAuthException(e);
+      throw AuthException(message);
+    } on Exception catch (e, s) {
+      debugPrint('$e\n$s');
+      rethrow;
+    }
+  }
+
+  Future<bool> login(String email, String password) async {
+    try {
+      await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      debugPrint('user: $user');
-      final currentUser = user.user;
-      if (currentUser != null) {
-        if (verify && !currentUser.emailVerified) {
-          await currentUser.sendEmailVerification();
-          throw AuthException('Please verify your email first');
-        }
-        final data =
-            await _firestore.collection('users').doc(currentUser.uid).get();
-        if (data.data() != null) {
-          return UserModel(
-            uid: data.data()!['uid'],
-            email: data.data()!['email'],
-          );
-        }
-      }
-      throw AuthException('User not found');
+      return true;
     } on FirebaseAuthException catch (e) {
       final message = AuthExceptionHandler.handleFirebaseAuthException(e);
       debugPrint('$message');
       throw AuthException(message);
     } on Exception catch (e) {
       debugPrint('$e');
+      rethrow;
+    }
+  }
+
+  User? get currentUser => _auth.currentUser;
+
+  Future<UserModel> getCurrentUserData(String email, String password) async {
+    try {
+      final response = await _firestore.doc(_auth.currentUser!.uid).get();
+      if (response.data() != null) {
+        return UserModel.fromMap(response.data()!);
+      }
+      throw AuthException('User not found');
+    } on FirebaseAuthException catch (e) {
+      final message = AuthExceptionHandler.handleFirebaseAuthException(e);
+      throw AuthException(message);
+    } on Exception catch (e, s) {
+      debugPrint('$e\n$s');
       rethrow;
     }
   }
@@ -106,43 +111,30 @@ class FirebaseService {
     }
   }
 
-  Future<UserModel> logInWithGoogleUser() async {
-    signOut();
-    final googleAccount = await _googleSignIn.signIn();
-    if (googleAccount != null) {
-      final auth = await googleAccount.authentication;
-      final googleAuthAccessToken = auth.accessToken;
-      final authCredential = GoogleAuthProvider.credential(
-        accessToken: googleAuthAccessToken,
-        idToken: auth.idToken,
-      );
-      final userCredential = await FirebaseAuth.instance
-          .signInWithCredential(authCredential)
-          .catchError((onError) {
-        debugPrint('$onError');
-        throw Exception('Error signing in with Google');
-      });
-      final firebaseAccessToken = userCredential.credential?.accessToken;
-      if (firebaseAccessToken != null) {
-        final data = await _firestore
-            .collection('users')
-            .where('uid', isEqualTo: userCredential.user?.uid)
-            .get();
-        if (data.docs.isNotEmpty) {
-          return UserModel(
-            uid: data.docs.first.data()['uid'],
-            email: data.docs.first.data()['email'],
-          );
-        }
-      } else {
-        signOut();
-        throw Exception('Error signing in with Google');
+  Future<bool> logInWithGoogleUser() async {
+    try {
+      await signOut();
+      final googleAccount = await _googleSignIn.signIn();
+      if (googleAccount != null) {
+        final auth = await googleAccount.authentication;
+        final googleAuthAccessToken = auth.accessToken;
+        final authCredential = GoogleAuthProvider.credential(
+            accessToken: googleAuthAccessToken, idToken: auth.idToken);
+        await FirebaseAuth.instance.signInWithCredential(authCredential);
+        return true;
       }
+      throw AuthException('Error signing in with Google');
+    } on FirebaseAuthException catch (e) {
+      final message = AuthExceptionHandler.handleFirebaseAuthException(e);
+      debugPrint('$message');
+      throw AuthException(message);
+    } on Exception catch (e, s) {
+      debugPrint('$e\n$s');
+      rethrow;
     }
-    throw AuthException('Error signing in with Google');
   }
 
-  void signOut() async {
+  Future<void> signOut() async {
     await _auth.signOut();
     await _googleSignIn.signOut();
   }

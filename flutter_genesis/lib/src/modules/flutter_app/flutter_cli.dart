@@ -39,14 +39,15 @@ class FlutterCli {
     );
   }
 
-  static Future<void> pubRun(List<String> args, String workingDirectory) async {
-    m('Running dependencies $args');
+  static Future<void> pubRun(List<String> args, String workingDirectory,
+      [bool? runInShell]) async {
+    m('Running dependencies $args on $workingDirectory');
     await process.run(
-      'flutter',
+      'dart',
       streamInput: false,
       arguments: ['pub', 'run', ...args],
       workingDirectory: workingDirectory,
-      runInShell: true,
+      runInShell: runInShell ?? true,
     );
     m('Flutter pub run done');
   }
@@ -59,7 +60,7 @@ class FlutterCli {
       addCommand.add('-d');
     }
     await process.run(
-      'flutter',
+      'dart',
       streamInput: false,
       arguments: ['pub', ...addCommand, ...packages],
       workingDirectory: workingDirectory,

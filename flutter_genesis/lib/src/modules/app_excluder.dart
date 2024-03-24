@@ -12,6 +12,7 @@ void removeCode(FlutterAppDetails appDetails) {
 
   //TODO: add test folder back
   _deleteFolder(join(appDetails.path, 'test'));
+  _deleteFolder(join(appDetails.path, 'lib/ui'));
   modifyCoreFiles(appDetails);
 }
 
