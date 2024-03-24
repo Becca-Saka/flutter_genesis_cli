@@ -27,6 +27,18 @@ class AdireCliProcess {
     ).interact();
   }
 
+  bool getConfirmation({
+    required String prompt,
+    bool? defaultValue,
+    bool waitForNewLine = false,
+  }) {
+    return Confirm(
+      prompt: prompt,
+      defaultValue: defaultValue,
+      waitForNewLine: waitForNewLine,
+    ).interact();
+  }
+
   int getSelectInput({
     required String prompt,
     required List<String> options,
@@ -60,6 +72,7 @@ class AdireCliProcess {
     Map<String, String>? environment,
     bool runInShell = true,
     bool showInlineResult = true,
+    bool catchErrorInline = true,
     bool showSpinner = false,
     String Function(bool)? spinnerMessage,
     String? errorMessage,
@@ -154,6 +167,7 @@ class AdireCliProcess {
     Map<String, String>? environment,
     bool runInShell = true,
     bool showInlineResult = true,
+    bool catchErrorInline = true,
     Function? onDone,
   }) async {
     final dirResult = await Process.run(
@@ -164,7 +178,9 @@ class AdireCliProcess {
       environment: environment,
     );
     onDone?.call();
-    catchError(dirResult);
+    if (catchErrorInline) {
+      catchError(dirResult);
+    }
     if (showInlineResult) {
       m('${dirResult.stdout}');
     }

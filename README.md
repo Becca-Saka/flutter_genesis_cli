@@ -21,6 +21,11 @@ The Genesis of all complex apps.
 - [ ] Flavor integration
 - [ ] Google analytics extension
 - [ ] Amplify integration
+- [ ] Flavor
+- [ ] Native icon
+- [ ] Native splash screen
+- [ ] Dark and light mode
+- [ ] Laguage support
 - [ ] add to existing project
 
 ### Firebase
@@ -29,3 +34,6 @@ The Genesis of all complex apps.
 - SHA for android 
 - [https://stackoverflow.com/a/75116787/12104254]
 
+## Notes for documentation
+
+if you use this packege to generate app flavors, it will automatically install ruby and xcodeproj if you don't have them installed
