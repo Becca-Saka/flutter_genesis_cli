@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter_genesis/src/shared/extensions/lists.dart';
+import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:path/path.dart';
 
@@ -12,28 +14,17 @@ Future<void> copyFiles({
   Directory dir = Directory('launcher/$sourcePath');
   await for (var entity in dir.list(recursive: true, followLinks: false)) {
     if (entity is File) {
-      String relativePath = entity.path.substring(dir.path.length);
-      final joinPart = split(relativePath);
-      final joinPartSplited = List<String>.from(joinPart)..removeLast();
-      relativePath = joinAll(joinPartSplited);
-
+      final destinationFile = _getNewPath(
+        appDetails: appDetails,
+        dirPath: dir.path,
+        entityPath: entity.path,
+        sourcePath: sourcePath,
+      );
       final baseName = basename(entity.path);
-      String destinationPath =
-          _setUpByManager('${appDetails.path}/$sourcePath', relativePath);
-
-      String newDestinationPath = '${destinationPath}/${baseName}';
-      newDestinationPath = normalize(newDestinationPath);
-
-      var destinationFile = File('$newDestinationPath');
-
       if (canCopyFile(appDetails, baseName)) {
         await destinationFile.create(recursive: true);
         var content = await entity.readAsString();
-        var modifiedContent = replaceByPattern(
-          content,
-          oldPattern: "import 'package:launcher/",
-          newPattern: "import 'package:${appDetails.name}/",
-        );
+        String modifiedContent = _changeAppImportName(content, appDetails);
 
         modifiedContent = replaceByPattern(
           modifiedContent,
@@ -41,10 +32,76 @@ Future<void> copyFiles({
           newPattern: "/data/services/",
         );
 
+        modifiedContent =
+            _modifyAuthFiles(appDetails, modifiedContent, baseName);
+
         await destinationFile.writeAsString(modifiedContent);
       }
     }
   }
+}
+
+File _getNewPath({
+  required String dirPath,
+  required String entityPath,
+  required String sourcePath,
+  required FlutterAppDetails appDetails,
+}) {
+  String relativePath = entityPath.substring(dirPath.length);
+  final joinPart = split(relativePath);
+  final joinPartSplited = List<String>.from(joinPart)..removeLast();
+  relativePath = joinAll(joinPartSplited);
+
+  String destinationPath =
+      _setUpByManager('${appDetails.path}/$sourcePath', relativePath);
+  final baseName = basename(entityPath);
+  String newDestinationPath = '${destinationPath}/${baseName}';
+  newDestinationPath = normalize(newDestinationPath);
+
+  var destinationFile = File('$newDestinationPath');
+
+  return destinationFile;
+}
+
+String _changeAppImportName(String content, FlutterAppDetails appDetails) {
+  var modifiedContent = replaceByPattern(
+    content,
+    oldPattern: "import 'package:launcher/",
+    newPattern: "import 'package:${appDetails.name}/",
+  );
+  return modifiedContent;
+}
+
+String _modifyAuthFiles(
+  FlutterAppDetails appDetails,
+  String content,
+  String baseName,
+) {
+  if (baseName.endsWith('auth_services.dart') ||
+      baseName.endsWith('sign_in_page.dart')) {
+    if (appDetails.firebaseAppDetails != null) {
+      final hasAuth = appDetails.firebaseAppDetails!.selectedOptions
+          .hasValue(FirebaseOptions.authentication);
+
+      if (hasAuth) {
+        final hasFirestore = appDetails.firebaseAppDetails!.selectedOptions
+            .hasValue(FirebaseOptions.firestore);
+        final hasGoogleSignIn = appDetails
+                .firebaseAppDetails!.authenticationMethods
+                ?.hasValue(AuthenticationMethod.google) ??
+            false;
+
+        if (!hasFirestore) {
+          content = removeLinesBetweenMarkers(content.split('\n'), 'firestore');
+        }
+        if (!hasGoogleSignIn) {
+          content =
+              removeLinesBetweenMarkers(content.split('\n'), 'googleAuth');
+        }
+      }
+    }
+  }
+  return content;
 }
 
 bool canCopyFile(FlutterAppDetails appDetails, String path) {
@@ -58,6 +115,9 @@ bool canCopyFile(FlutterAppDetails appDetails, String path) {
     if (authPaths.contains(path)) {
       return false;
     }
+  }
+  if (path.endsWith('firebase_options.dart')) {
+    return false;
   }
 
   return true;

@@ -8,14 +8,18 @@ class FlutterPackageManager {
     m('Setting up external packages');
     final firebaseAppDetails = flutterAppDetails.firebaseAppDetails;
     final path = flutterAppDetails.path;
+    List<String> packages = [
+      'flutter_svg',
+    ];
     if (firebaseAppDetails != null) {
       final authPackages =
           _getAuthCorePackages(firebaseAppDetails.authenticationMethods, path);
 
       if (authPackages.isNotEmpty) {
-        await FlutterCli.pubAdd(authPackages, path);
+        packages.addAll(authPackages);
       }
     }
+    await FlutterCli.pubAdd(packages, path);
   }
 
   static List<String> _getAuthCorePackages(

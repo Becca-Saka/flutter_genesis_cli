@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_genesis/src/commands/process/process.dart';
+import 'package:flutter_genesis/src/modules/app_copier.dart';
+import 'package:flutter_genesis/src/modules/app_excluder.dart';
 import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
+import 'package:flutter_genesis/src/modules/flutter_app/flutter_package_manager.dart';
 import 'package:flutter_genesis/src/shared/extensions/lists.dart';
 import 'package:flutter_genesis/src/shared/logger.dart';
 import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
@@ -17,23 +20,16 @@ import 'package:path/path.dart';
 ///
 class FlutterApp {
   AdireCliProcess process = AdireCliProcess();
-
+  FlavorManager _flavorManager = FlavorManager();
   Future<FlutterAppDetails> init() async {
-    // final name = getAppName();
-    // final package = getPackageName(name);
-    final name = getAppName();
-    final package = getPackageName(name);
-    final path = getPath();
-    final flavors = await FlavorManager().getFlavorInfomation(package);
-    final templates = getTemplateOptions();
-    final platforms = getPlatformOptions();
-    final firebaseAppDetails = await loadTemplateOptions(
-      templates,
-      name,
-      flavors,
-    );
-
-    // final flavors = FlavorManager().getFlavorInfomation();
+    final name = _getAppName();
+    final package = _getPackageName(name);
+    final path = _getPath();
+    final flavors = await _flavorManager.getFlavorInfomation(package);
+    final templates = _getTemplateOptions();
+    final platforms = _getPlatformOptions();
+    final firebaseAppDetails =
+        await _loadTemplateOptions(templates, name, flavors);
 
     final flutterAppDetails = FlutterAppDetails(
       name: name,
@@ -50,15 +46,13 @@ class FlutterApp {
   Future<FlutterAppDetails> _createApp(
       FlutterAppDetails flutterAppDetails) async {
     await FlutterCli.create(flutterAppDetails: flutterAppDetails);
-    // if (flutterAppDetails.firebaseAppDetails?.flavorConfigs != null) {
-    //   flutterAppDetails = FlavorManager().addFirebaseFlavors(flutterAppDetails);
-    // }
+
     return flutterAppDetails.copyWith(
       path: normalize(flutterAppDetails.path + '/' + flutterAppDetails.name),
     );
   }
 
-  String getAppName() {
+  String _getAppName() {
     String? name = process.getInput(
       prompt: 'What should we call your project?',
       validator: (val) => AppValidators.notNullAndNotEmpty(
@@ -72,7 +66,7 @@ class FlutterApp {
     return name;
   }
 
-  String getPath() {
+  String _getPath() {
     // String appPath = Directory.current.path;
     String appPath = normalize(Directory.current.parent.path + '/examples');
     final path = process.getInput(
@@ -89,7 +83,7 @@ class FlutterApp {
     return appPath;
   }
 
-  String getPackageName(String name) {
+  String _getPackageName(String name) {
     final package = process.getInput(
       prompt: 'What is the package name?',
       defaultValue: 'com.example.$name',
@@ -99,7 +93,7 @@ class FlutterApp {
     return package;
   }
 
-  List<FlutterAppPlatform> getPlatformOptions() {
+  List<FlutterAppPlatform> _getPlatformOptions() {
     const options = FlutterAppPlatform.values;
     final answerIndexes = process.getMultiSelectInput(
       prompt: 'What platform should your project be initialized for?',
@@ -111,7 +105,7 @@ class FlutterApp {
     );
     if (answerIndexes.isEmpty) {
       e('Please select a platform');
-      getPlatformOptions();
+      _getPlatformOptions();
     }
     final answers = options
         .where((element) => answerIndexes.contains(options.indexOf(element)))
@@ -121,7 +115,7 @@ class FlutterApp {
     return answers;
   }
 
-  List<TemplateOptions> getTemplateOptions() {
+  List<TemplateOptions> _getTemplateOptions() {
     const options = TemplateOptions.values;
     final answerIndexes = process.getMultiSelectInput(
       prompt: 'What would you like to initialize?',
@@ -134,7 +128,7 @@ class FlutterApp {
     return answers;
   }
 
-  Future<FirebaseAppDetails?> loadTemplateOptions(
+  Future<FirebaseAppDetails?> _loadTemplateOptions(
     List<TemplateOptions> options,
     String name,
     FlavorModel? flavors,
@@ -145,5 +139,28 @@ class FlutterApp {
       return firebaseAppDetails;
     }
     return null;
+  }
+
+  Future<void> postCreate(FlutterAppDetails flutterAppDetails) async {
+    if (flutterAppDetails.firebaseAppDetails != null) {
+      await FlutterFireCli.instance.initializeFirebase(flutterAppDetails);
+    }
+    if (flutterAppDetails.flavorModel != null) {
+      await _flavorManager.createFlavor(flutterAppDetails);
+    }
+    await _copyFiles(flutterAppDetails);
+    _removeCode(flutterAppDetails);
+    _cleanUp(flutterAppDetails);
+  }
+
+  Future<void> _copyFiles(FlutterAppDetails flutterAppDetails) async =>
+      await copyFiles(sourcePath: 'lib', appDetails: flutterAppDetails);
+
+  void _removeCode(FlutterAppDetails flutterAppDetails) =>
+      removeCode(flutterAppDetails);
+
+  Future<void> _cleanUp(FlutterAppDetails flutterAppDetails) async {
+    await FlutterPackageManager.getPackages(flutterAppDetails);
+    await FlutterCli.format(flutterAppDetails.path);
   }
 }

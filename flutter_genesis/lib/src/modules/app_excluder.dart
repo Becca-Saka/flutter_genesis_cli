@@ -4,16 +4,16 @@ import 'package:flutter_genesis/src/modules/pattern_replace.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:path/path.dart';
 
-import 'excludable_code.dart';
-
 void removeCode(FlutterAppDetails appDetails) {
   final basePath = join(appDetails.path, 'lib', 'managers');
   print('removing $basePath');
 
   //TODO: add test folder back
   _deleteFolder(join(appDetails.path, 'test'));
-  _deleteFolder(join(appDetails.path, 'lib/ui'));
-  modifyCoreFiles(appDetails);
+  // _deleteFolder(join(appDetails.path, 'lib/ui'));
+  if (appDetails.firebaseAppDetails == null) {
+    modifyCoreFiles(appDetails);
+  }
 }
 
 void _deleteFolder(path) {
@@ -46,22 +46,14 @@ Future<void> modifyCoreFiles(FlutterAppDetails appDetails) async {
 }
 
 String modifyExistingFile(String inputContent, String appName) {
-  final excludable = ExcludableCodes(appName);
-
-  for (var key in excludable.exclude) {
-    inputContent = replaceByPattern(
-      inputContent,
-      oldPattern: key,
-      newPattern: '',
-    );
-  }
-  for (var key in excludable.excludeCodesWithReplacement().entries) {
-    inputContent = replaceByPattern(
-      inputContent,
-      oldPattern: key.key,
-      newPattern: key.value,
-    );
-  }
+  inputContent = removeLinesBetweenMarkers(
+    inputContent.split('\n'),
+    'noAuth',
+  );
+  inputContent = removeCommentBetweenMarkers(
+    inputContent.split('\n'),
+    'noAuth',
+  );
 
   return inputContent;
 }

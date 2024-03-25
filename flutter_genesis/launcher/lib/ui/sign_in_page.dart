@@ -1,10 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:launcher/app/app_routes.dart';
 import 'package:launcher/exceptions/auth_exception.dart';
 import 'package:launcher/services/auth_services.dart';
 import 'package:launcher/ui/widgets/app_form_field.dart';
+import 'package:launcher/ui/widgets/app_icons.dart';
 import 'package:launcher/utils/snackbar/app_snackbar.dart';
 import 'package:launcher/utils/validators.dart';
 
@@ -118,12 +118,13 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
                 const SizedBox(height: 16.0),
+// START REMOVE BLOCK: googleAuth
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    InkWell(
-                      onTap: () async {
+                    AppIcons(
+                      onPressed: () async {
                         try {
                           final user =
                               await firebaseService.logInWithGoogleUser();
@@ -137,14 +138,11 @@ class _SignInPageState extends State<SignInPage> {
                           showSnackbar(context, e.message);
                         }
                       },
-                      child: SvgPicture.asset(
-                        'assets/svgs/google.svg',
-                        height: 35.0,
-                        width: 35.0,
-                      ),
+                      icon: AppIconData.googleSignIn,
                     ),
                   ],
                 ),
+// END REMOVE BLOCK: googleAuth
               ],
             ),
           ),

@@ -11,6 +11,7 @@ import 'package:flutter_genesis/src/shared/validators.dart';
 import 'package:interact/interact.dart';
 import 'package:tint/tint.dart';
 
+///Handles the flavor addition to the app
 class FlavorModel {
   Map<String, String>? name;
   Map<String, String>? packageId;
@@ -503,13 +504,9 @@ class FlavorManager {
     await _installFlavorizr(appDetails);
   }
 
-  void _addToIgnore() {
-    // echo 'application/cache' >> .gitignore
-    // process.run(executable)
-  }
   Future<void> _installDependencies() async {
     await _installRuby();
-    // await _installXcodeproj();
+    await _installXcodeproj();
   }
 
   Future<void> _installRuby() async {
@@ -566,14 +563,6 @@ class FlavorManager {
 
         print(flutterAppDetails.flavorModel!.firebaseConfig);
       }
-      // else {
-      //   final googleJsonPath = '${appPath}/android/app/google-services.json';
-      //   final infoPlistPath = '${appPath}/ios/Runner/GoogleService-Info.plist';
-      //   flutterAppDetails.flavorModel!.firebaseConfig![flavor] = {
-      //     'iosPath': infoPlistPath,
-      //     'androidPath': googleJsonPath,
-      //   };
-      // }
     }
     return flutterAppDetails;
   }
@@ -588,8 +577,6 @@ class FlavorManager {
     );
 
     await AdireCliProcess().delayProcess(5, 'wait');
-    await FlutterCli.pubRun([
-      'flutter_flavorizr',
-    ], appDetails.path);
+    await FlutterCli.pubRun(['flutter_flavorizr'], appDetails.path);
   }
 }

@@ -1,19 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:launcher/models/user_model.dart';
 import 'package:launcher/ui/home_page.dart';
+// START REMOVE BLOCK: noAuth
 import 'package:launcher/ui/sign_in_page.dart';
 import 'package:launcher/ui/sign_up_page.dart';
 
+// END REMOVE BLOCK: noAuth
 class AppRoutes {
+// START REMOVE BLOCK: noAuth
   static const String signIn = '/sign_in';
   static const String signUp = '/sign_up';
+// END REMOVE BLOCK: noAuth
   static const String home = '/home';
 }
 
 class AppRouter {
+// START REMOVE BLOCK: noAuth
   static const String initialRoute = AppRoutes.signIn;
+// END REMOVE BLOCK: noAuth
+// START REMOVE COMMENT: noAuth
+
+  // static const String initialRoute = AppRoutes.home;
+
+// END REMOVE COMMENT: noAuth
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+// START REMOVE BLOCK: noAuth
       case AppRoutes.signIn:
         return MaterialPageRoute(
           builder: (context) => const SignInPage(),
@@ -22,12 +33,10 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (context) => const SignUpPage(),
         );
+// END REMOVE BLOCK: noAuth
       case AppRoutes.home:
-        final user = settings.arguments as UserModel;
         return MaterialPageRoute(
-          builder: (context) => HomePage(
-            user: user,
-          ),
+          builder: (context) => const HomePage(),
         );
       default:
         return MaterialPageRoute(

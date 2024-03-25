@@ -5,6 +5,7 @@ extension EnumListExtension on List<Enum> {
 extension ListExtension on List {
   String get joined => join(',');
   String get spacedJoined => join(', ');
+  bool hasValue(value) => this.any((element) => element == value);
   List<T> getValuesAtIndexes<T>(List<int> indexes) {
     List<T> result = [];
     for (int index in indexes) {

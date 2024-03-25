@@ -39,7 +39,7 @@ class FlutterFireCli {
       cliToken: firebaseToken,
       selectedOptions: selectedOptions,
     );
-    if (useFlavors()) {
+    if (useFlavors(flavors)) {
       assert(flavors != null);
       final namesByFlavor = flavors!.name;
       final flavorsEnvironment = flavors.environmentOptions;
@@ -78,12 +78,15 @@ class FlutterFireCli {
     return details;
   }
 
-  bool useFlavors() {
-    return process.getConfirmation(
-      prompt:
-          'Would you like to generate different firebase project for your flavors?',
-      defaultValue: false,
-    );
+  bool useFlavors(FlavorModel? flavors) {
+    if (flavors != null) {
+      return process.getConfirmation(
+        prompt:
+            'Would you like to generate different firebase project for your flavors?',
+        defaultValue: false,
+      );
+    }
+    return false;
   }
 
   void getOptions() {
@@ -321,7 +324,7 @@ class FlutterFireCli {
 
     await process.run(
       'bash',
-      streamInput: true,
+      streamInput: false,
       arguments: ['-l', '-c', flutterFire],
       showSpinner: true,
       spinnerMessage: (done) =>
