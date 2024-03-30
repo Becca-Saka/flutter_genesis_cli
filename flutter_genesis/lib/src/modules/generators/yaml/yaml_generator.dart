@@ -105,6 +105,12 @@ class YamlGenerator {
           },
         }
       };
+      if (!flutterAppDetails.platforms.contains(FlutterAppPlatform.android)) {
+        platformMap.removeWhere((key, value) => key == 'android');
+      } else if (!flutterAppDetails.platforms
+          .contains(FlutterAppPlatform.ios)) {
+        platformMap.removeWhere((key, value) => key == 'ios');
+      }
 
       flavorMaps.addAll({'$flavor': platformMap});
     }

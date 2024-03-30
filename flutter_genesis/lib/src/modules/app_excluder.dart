@@ -4,15 +4,15 @@ import 'package:flutter_genesis/src/modules/pattern_replace.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:path/path.dart';
 
-void removeCode(FlutterAppDetails appDetails) {
-  final basePath = join(appDetails.path, 'lib', 'managers');
-  print('removing $basePath');
+Future<void> removeCode(FlutterAppDetails appDetails) async {
+  // final basePath = join(appDetails.path, 'lib', 'managers');
+  // print('removing $basePath');
 
   //TODO: add test folder back
   _deleteFolder(join(appDetails.path, 'test'));
   // _deleteFolder(join(appDetails.path, 'lib/ui'));
   if (appDetails.firebaseAppDetails == null) {
-    modifyCoreFiles(appDetails);
+    await modifyCoreFiles(appDetails);
   }
 }
 

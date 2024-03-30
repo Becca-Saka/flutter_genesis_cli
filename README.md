@@ -9,27 +9,27 @@ The Genesis of all complex apps.
 
 
 ## Check list
-- [ ] State managements-[Suspended]
-- [ ] Testing basics
-- [ ] Firebase integration
-- [ ] Superbase integration
-- [ ] Agora integration
-- [ ] One signal integration
-- [ ] VSCode extension
-- [ ] Amplify integration
-- [ ] Sentry extension
+- [ ] State managements -[Suspended]
 - [ ] Flavor integration
-- [ ] Google analytics extension
-- [ ] Amplify integration
-- [ ] Stripe payment
-- [ ] Google/Apple IAP 
-- [ ] Flavor
+- [ ] Testing basics
+- [ ] .vscdode for flavors launcher
+- [ ] .env configuration
 - [ ] Native icon
 - [ ] Native splash screen
+- [ ] Firebase integration
+- [ ] Superbase integration
+- [ ] Amplify integration
+- [ ] Sentry extension
+- [ ] Google analytics extension
+- [ ] Mixpanel integration
+- [ ] Agora integration
+- [ ] One signal integration
+- [ ] Stripe payment
+- [ ] Google/Apple IAP 
 - [ ] Dark and light mode
 - [ ] Laguage support
-- [ ] .vscdode launcher
 - [ ] add to existing project
+- [ ] VSCode extension
 
 ### Firebase
 - Login with google credentials in info.plist ??

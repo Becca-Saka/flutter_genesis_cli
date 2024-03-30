@@ -11,6 +11,17 @@ class CreateApp extends Command {
   @override
   Future<void> run() async {
     FlutterApp app = FlutterApp();
-    await app.init();
+    final flutterAppDetails = await app.init();
+    await app.postCreate(flutterAppDetails);
+    // FirebaseJsonScriptGenerator().create(FlutterAppDetails(
+    //     name: 'tester',
+    //     path:
+    //         '/Users/becca/StudioProjects/flutter/Work/Adire/flutter_genesis_cli/examples/another',
+    //     packageName: 'com.exampl.tester',
+    //     templates: [TemplateOptions.firebase],
+    //     platforms: [FlutterAppPlatform.ios],
+    //     firebaseAppDetails: null,
+    //     flavorModel: FlavorModel(environmentOptions: ['dev', 'rice', 'prod']),
+    //   ));
   }
 }

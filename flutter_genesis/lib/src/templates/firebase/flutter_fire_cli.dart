@@ -143,7 +143,7 @@ class FlutterFireCli {
     if (projectDetails == null) {
       final result = await process.run(
         'firebase',
-        streamInput: false,
+        streamOutput: false,
         arguments: ['projects:list', '--token', '$token'],
         showInlineResult: false,
         showSpinner: true,
@@ -251,6 +251,7 @@ class FlutterFireCli {
           args += ' --ios-bundle-id=${flavorModel.packageId![flavor]}';
           final firebaseFlavorConfig =
               flavorConfigs.firstWhere((element) => element.flavor == flavor);
+
           await _configureFirebase(
             projectId: firebaseFlavorConfig.projectId,
             token: token,
@@ -258,22 +259,28 @@ class FlutterFireCli {
             platforms: platforms,
             path: appPath,
           );
-          await _moveFiles(
-            appPath: appPath,
-            newPath: '${appPath}/ios/Runner/config/${flavor}',
-            oldPath: '${appPath}/ios/Runner/GoogleService-Info.plist',
-          );
-          await _moveFiles(
-            appPath: appPath,
-            newPath: '${appPath}/ios/config/${flavor}',
-            oldPath: '${appPath}/ios/firebase_app_id_file.json',
-          );
 
-          await _moveFiles(
-            appPath: appPath,
-            newPath: '${appPath}/android/app/${flavor}',
-            oldPath: '${appPath}/android/app/google-services.json',
-          );
+          if (flutterAppDetails.platforms.contains(FlutterAppPlatform.ios)) {
+            await _moveFiles(
+              appPath: appPath,
+              newPath: '${appPath}/ios/Runner/config/${flavor}',
+              oldPath: '${appPath}/ios/Runner/GoogleService-Info.plist',
+            );
+
+            await _moveFiles(
+              appPath: appPath,
+              newPath: '${appPath}/ios/Runner/config/${flavor}',
+              oldPath: '${appPath}/ios/firebase_app_id_file.json',
+            );
+          }
+          if (flutterAppDetails.platforms
+              .contains(FlutterAppPlatform.android)) {
+            await _moveFiles(
+              appPath: appPath,
+              newPath: '${appPath}/android/app/src/${flavor}',
+              oldPath: '${appPath}/android/app/google-services.json',
+            );
+          }
         }
       } else {
         await _configureFirebase(
@@ -305,7 +312,7 @@ class FlutterFireCli {
         newPath,
       ],
       workingDirectory: appPath,
-      streamInput: false,
+      streamOutput: false,
     );
   }
 
@@ -324,7 +331,7 @@ class FlutterFireCli {
 
     await process.run(
       'bash',
-      streamInput: false,
+      streamOutput: false,
       arguments: ['-l', '-c', flutterFire],
       showSpinner: true,
       spinnerMessage: (done) =>

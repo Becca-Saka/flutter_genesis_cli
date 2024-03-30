@@ -21,6 +21,7 @@ import 'package:path/path.dart';
 class FlutterApp {
   AdireCliProcess process = AdireCliProcess();
   FlavorManager _flavorManager = FlavorManager();
+  AppCopier _appCopier = AppCopier();
   Future<FlutterAppDetails> init() async {
     final name = _getAppName();
     final package = _getPackageName(name);
@@ -99,7 +100,7 @@ class FlutterApp {
       prompt: 'What platform should your project be initialized for?',
       options: options.names,
       defaultValue: [
-        FlutterAppPlatform.android.name,
+        // FlutterAppPlatform.android.name,
         FlutterAppPlatform.ios.name,
       ],
     );
@@ -149,15 +150,21 @@ class FlutterApp {
       await _flavorManager.createFlavor(flutterAppDetails);
     }
     await _copyFiles(flutterAppDetails);
-    _removeCode(flutterAppDetails);
+    await process.delayProcess(3, 'Cleaning up');
+    await _appCopier.modifyNewDestinationFiles(appDetails: flutterAppDetails);
+    await _removeCode(flutterAppDetails);
+    await _appCopier.cleanUpComments(appDetails: flutterAppDetails);
+
+    print('Beging clean ' +
+        await File('${flutterAppDetails.path}/lib/main.dart').readAsString());
     _cleanUp(flutterAppDetails);
   }
 
   Future<void> _copyFiles(FlutterAppDetails flutterAppDetails) async =>
-      await copyFiles(sourcePath: 'lib', appDetails: flutterAppDetails);
+      await _appCopier.copyFiles(flutterAppDetails);
 
-  void _removeCode(FlutterAppDetails flutterAppDetails) =>
-      removeCode(flutterAppDetails);
+  Future<void> _removeCode(FlutterAppDetails flutterAppDetails) async =>
+      await removeCode(flutterAppDetails);
 
   Future<void> _cleanUp(FlutterAppDetails flutterAppDetails) async {
     await FlutterPackageManager.getPackages(flutterAppDetails);

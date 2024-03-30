@@ -44,7 +44,7 @@ class FlutterCli {
     m('Running dependencies $args on $workingDirectory');
     await process.run(
       'dart',
-      streamInput: false,
+      streamOutput: false,
       arguments: ['pub', 'run', ...args],
       workingDirectory: workingDirectory,
       runInShell: runInShell ?? true,
@@ -61,7 +61,7 @@ class FlutterCli {
     }
     await process.run(
       'dart',
-      streamInput: false,
+      streamOutput: false,
       arguments: ['pub', ...addCommand, ...packages],
       workingDirectory: workingDirectory,
       runInShell: true,
@@ -88,7 +88,7 @@ class FlutterCli {
     m('Running Dart Format');
     await process.run(
       'dart',
-      streamInput: false,
+      streamOutput: false,
       arguments: ['format', '.'],
       workingDirectory: workingDirectory,
       runInShell: true,
@@ -101,7 +101,7 @@ class FlutterCli {
     m('Activating $packageName');
     await process.run(
       'dart',
-      streamInput: false,
+      streamOutput: false,
       arguments: ['pub', 'global', 'activate', packageName],
       workingDirectory: workingDirectory,
       runInShell: true,

@@ -66,7 +66,7 @@ class AdireCliProcess {
 
   Future<ProcessResult?> run(
     String executable, {
-    bool streamInput = true,
+    bool streamOutput = true,
     List<String>? arguments,
     String? workingDirectory,
     Map<String, String>? environment,
@@ -97,7 +97,7 @@ class AdireCliProcess {
         },
       ).interact();
     }
-    if (streamInput) {
+    if (streamOutput) {
       await _processStart(
         executable,
         arguments: arguments,

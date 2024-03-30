@@ -12,8 +12,10 @@ class FirebasePackageManager {
         _getCorePackages(firebaseAppDetails.selectedOptions, path);
     final authPackages =
         _getAuthCorePackages(firebaseAppDetails.authenticationMethods, path);
-
-    FlutterCli.pubAdd(corePackages + authPackages, path);
+    final packages = corePackages + authPackages;
+    if (packages.isNotEmpty) {
+      FlutterCli.pubAdd(corePackages + authPackages, path);
+    }
   }
 
   static List<String> _getCorePackages(

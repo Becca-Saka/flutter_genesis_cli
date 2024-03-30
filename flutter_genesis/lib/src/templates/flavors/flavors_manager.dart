@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_genesis/src/commands/process/process.dart';
 import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
+import 'package:flutter_genesis/src/modules/generators/script/firebase_json_script_generator.dart';
 import 'package:flutter_genesis/src/modules/generators/yaml/yaml_generator.dart';
 import 'package:flutter_genesis/src/shared/extensions/lists.dart';
 import 'package:flutter_genesis/src/shared/logger.dart';
@@ -87,7 +88,6 @@ class FlavorManager {
       model.resValues = _getResValuesSuffix(selectedFlavors);
       model.buildConfigFields = _getBuildConfigFieldValues(selectedFlavors);
 
-      m(' flavor(s) config: ${model.toString()}}');
       return model;
     }
     return null;
@@ -499,9 +499,14 @@ class FlavorManager {
   }
 
   Future<void> createFlavor(FlutterAppDetails appDetails) async {
+    m('Creating flavors');
     await _installDependencies();
     _createYamlFile(appDetails);
     await _installFlavorizr(appDetails);
+
+    if (appDetails.firebaseAppDetails?.flavorConfigs != null) {
+      await FirebaseJsonScriptGenerator().create(appDetails);
+    }
   }
 
   Future<void> _installDependencies() async {
@@ -514,7 +519,7 @@ class FlavorManager {
       'ruby',
       arguments: ['-v'],
       showInlineResult: false,
-      streamInput: false,
+      streamOutput: false,
       catchErrorInline: false,
     );
     if (result!.exitCode != 0) {
@@ -530,7 +535,7 @@ class FlavorManager {
       'xcodeproj',
       arguments: ['--version'],
       showInlineResult: false,
-      streamInput: false,
+      streamOutput: false,
       catchErrorInline: false,
     );
     if (result!.exitCode != 0) {
@@ -549,19 +554,16 @@ class FlavorManager {
   FlutterAppDetails _addFirebaseFlavors(FlutterAppDetails flutterAppDetails) {
     final appPath = flutterAppDetails.path;
     flutterAppDetails.flavorModel!.firebaseConfig = {};
-
-    for (var flavor in flutterAppDetails.flavorModel!.environmentOptions) {
-      if (flutterAppDetails.firebaseAppDetails?.flavorConfigs != null) {
+    if (flutterAppDetails.firebaseAppDetails?.flavorConfigs != null) {
+      for (var flavor in flutterAppDetails.flavorModel!.environmentOptions) {
         final googleJsonPath =
-            '${appPath}/android/app/${flavor}/google-services.json';
+            '${appPath}/android/app/src/${flavor}/google-services.json';
         final infoPlistPath =
             '${appPath}/ios/Runner/config/${flavor}/GoogleService-Info.plist';
         flutterAppDetails.flavorModel!.firebaseConfig![flavor] = {
           'iosPath': infoPlistPath,
           'androidPath': googleJsonPath,
         };
-
-        print(flutterAppDetails.flavorModel!.firebaseConfig);
       }
     }
     return flutterAppDetails;
@@ -570,7 +572,7 @@ class FlavorManager {
   Future<void> _installFlavorizr(FlutterAppDetails appDetails) async {
     await process.run(
       'dart',
-      streamInput: false,
+      streamOutput: false,
       arguments: ['pub', 'add', '-d', 'flutter_flavorizr'],
       workingDirectory: appDetails.path,
       runInShell: true,

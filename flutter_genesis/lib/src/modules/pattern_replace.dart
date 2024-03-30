@@ -9,6 +9,24 @@ String replaceByPattern(
   );
 }
 
+String removeAppMarker(List<String> inputContent) {
+  String startMarker = '// START REMOVE BLOCK:';
+  String endMarker = '// END REMOVE BLOCK:';
+  String startCommentMarker = '// START REMOVE COMMENT:';
+  String endCommentMarker = '// END REMOVE COMMENT:';
+  var newLines = <String>[];
+  for (var line in inputContent) {
+    if (!line.contains(startMarker) &&
+        !line.contains(endMarker) &&
+        !line.contains(startCommentMarker) &&
+        !line.contains(endCommentMarker)) {
+      newLines.add(line);
+    }
+  }
+  print(newLines);
+  return newLines.join('\n');
+}
+
 String removeLinesBetweenMarkers(List<String> inputContent, String marker) {
   var inBlock = false;
   String startMarker = '// START REMOVE BLOCK: $marker';
@@ -24,6 +42,7 @@ String removeLinesBetweenMarkers(List<String> inputContent, String marker) {
     if (line.contains(startMarker)) {
       inBlock = true;
     }
+    print('inBlock: $inBlock line: $line');
   }
 
   return newLines.join('\n');
