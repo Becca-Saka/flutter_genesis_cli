@@ -11,6 +11,7 @@ import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:flutter_genesis/src/shared/validators.dart';
 import 'package:flutter_genesis/src/templates/firebase/flutter_fire_cli.dart';
+import 'package:flutter_genesis/src/templates/flavors/flavor_model.dart';
 import 'package:flutter_genesis/src/templates/flavors/flavors_manager.dart';
 import 'package:flutter_genesis/src/templates/template_options.dart';
 import 'package:path/path.dart';
@@ -68,7 +69,6 @@ class FlutterApp {
   }
 
   String _getPath() {
-    // String appPath = Directory.current.path;
     String appPath = normalize(Directory.current.parent.path + '/examples');
     final path = process.getInput(
       prompt: 'Where is your project located?',
@@ -148,10 +148,11 @@ class FlutterApp {
     }
     if (flutterAppDetails.flavorModel != null) {
       await _flavorManager.createFlavor(flutterAppDetails);
+      await _flavorManager.modifyNewDestinationFiles(flutterAppDetails);
     }
+
     await _copyFiles(flutterAppDetails);
     await process.delayProcess(3, 'Cleaning up');
-    await _appCopier.modifyNewDestinationFiles(appDetails: flutterAppDetails);
     await _removeCode(flutterAppDetails);
     await _appCopier.cleanUpComments(appDetails: flutterAppDetails);
     await _cleanUp(flutterAppDetails);

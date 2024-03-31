@@ -11,9 +11,8 @@ Future<void> removeCode(FlutterAppDetails appDetails) async {
   //TODO: add test folder back
   _deleteFolder(join(appDetails.path, 'test'));
   // _deleteFolder(join(appDetails.path, 'lib/ui'));
-  if (appDetails.firebaseAppDetails == null) {
-    // await modifyCoreFiles(appDetails);
-  }
+
+  await modifyCoreFiles(appDetails);
 }
 
 void _deleteFolder(path) {
@@ -39,20 +38,26 @@ Future<void> modifyCoreFiles(FlutterAppDetails appDetails) async {
     final direc = File(element);
     if (direc.existsSync()) {
       final inputContent = direc.readAsStringSync();
-      final modifiedContent = modifyExistingFile(inputContent, appDetails.name);
+      String modifiedContent = inputContent;
+      if (appDetails.flavorModel != null) {
+        modifiedContent = modifyExistingFile(inputContent, 'flavor');
+      }
+      if (appDetails.firebaseAppDetails == null) {
+        modifiedContent = modifyExistingFile(inputContent, 'noAuth');
+      }
       await direc.writeAsString(modifiedContent);
     }
   }
 }
 
-String modifyExistingFile(String inputContent, String appName) {
+String modifyExistingFile(String inputContent, String tagName) {
   inputContent = removeLinesBetweenMarkers(
     inputContent.split('\n'),
-    'noAuth',
+    tagName,
   );
   inputContent = removeCommentBetweenMarkers(
     inputContent.split('\n'),
-    'noAuth',
+    tagName,
   );
 
   return inputContent;

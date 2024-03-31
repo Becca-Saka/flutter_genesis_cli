@@ -10,7 +10,7 @@ import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:flutter_genesis/src/shared/validators.dart';
 import 'package:flutter_genesis/src/templates/firebase/firebase_package_manager.dart';
-import 'package:flutter_genesis/src/templates/flavors/flavors_manager.dart';
+import 'package:flutter_genesis/src/templates/flavors/flavor_model.dart';
 import 'package:flutter_genesis/src/templates/token.dart';
 import 'package:tint/tint.dart';
 import 'package:uuid/uuid.dart';
