@@ -6,7 +6,7 @@ import 'flavor_model.dart';
 
 ///Handles the flavor addition to the app
 
-class FlavorManager {
+class BaseFlavorManager {
   FlavorCreator _flavorCreator = FlavorCreator();
   FlavorInfoManager _flavorInfoManager = FlavorInfoManager();
   Future<FlavorModel?> getFlavorInfomation(String package) async {

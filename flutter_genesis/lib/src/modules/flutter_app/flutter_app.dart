@@ -9,19 +9,19 @@ import 'package:flutter_genesis/src/shared/extensions/lists.dart';
 import 'package:flutter_genesis/src/shared/logger.dart';
 import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
+import 'package:flutter_genesis/src/shared/models/template_options.dart';
 import 'package:flutter_genesis/src/shared/validators.dart';
 import 'package:flutter_genesis/src/templates/firebase/flutter_fire_cli.dart';
+import 'package:flutter_genesis/src/templates/flavors/base_flavor_manager.dart';
 import 'package:flutter_genesis/src/templates/flavors/flavor_model.dart';
-import 'package:flutter_genesis/src/templates/flavors/flavors_manager.dart';
-import 'package:flutter_genesis/src/templates/template_options.dart';
 import 'package:path/path.dart';
 
 ///Handles the flutter app creation process.
 ///
 ///
 class FlutterApp {
-  AdireCliProcess process = AdireCliProcess();
-  FlavorManager _flavorManager = FlavorManager();
+  FlutterGenesisCli process = FlutterGenesisCli();
+  BaseFlavorManager _flavorManager = BaseFlavorManager();
   AppCopier _appCopier = AppCopier();
   Future<FlutterAppDetails> init() async {
     final name = _getAppName();

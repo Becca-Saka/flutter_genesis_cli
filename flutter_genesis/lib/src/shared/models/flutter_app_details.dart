@@ -1,6 +1,6 @@
 import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
+import 'package:flutter_genesis/src/shared/models/template_options.dart';
 import 'package:flutter_genesis/src/templates/flavors/flavor_model.dart';
-import 'package:flutter_genesis/src/templates/template_options.dart';
 
 enum FlutterAppPlatform {
   ios,

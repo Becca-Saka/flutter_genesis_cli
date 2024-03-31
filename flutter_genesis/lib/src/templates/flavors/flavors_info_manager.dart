@@ -13,7 +13,7 @@ import 'flavor_model.dart';
 ///Handles the flavor addition to the app
 
 class FlavorInfoManager {
-  AdireCliProcess process = AdireCliProcess();
+  FlutterGenesisCli process = FlutterGenesisCli();
   YamlGenerator yamlGenerator = YamlGenerator();
 
   Future<FlavorModel?> getFlavorInfomation(String package) async {

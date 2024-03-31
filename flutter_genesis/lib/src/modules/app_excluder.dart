@@ -5,12 +5,8 @@ import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:path/path.dart';
 
 Future<void> removeCode(FlutterAppDetails appDetails) async {
-  // final basePath = join(appDetails.path, 'lib', 'managers');
-  // print('removing $basePath');
-
   //TODO: add test folder back
   _deleteFolder(join(appDetails.path, 'test'));
-  // _deleteFolder(join(appDetails.path, 'lib/ui'));
 
   await modifyCoreFiles(appDetails);
 }

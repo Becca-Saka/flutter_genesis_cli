@@ -1,19 +1,17 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:flutter_genesis/src/commands/process/process.dart';
-import 'package:flutter_genesis/src/modules/file_reader.dart';
+import 'package:flutter_genesis/src/modules/file_modifier.dart';
 import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
 import 'package:flutter_genesis/src/modules/generators/script/firebase_json_script_generator.dart';
 import 'package:flutter_genesis/src/modules/generators/yaml/yaml_generator.dart';
 import 'package:flutter_genesis/src/modules/pattern_replace.dart';
 import 'package:flutter_genesis/src/shared/logger.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
-import 'package:flutter_genesis/src/templates/flavors/file_parser.dart';
 import 'package:path/path.dart';
 
 class FlavorCreator {
-  AdireCliProcess process = AdireCliProcess();
+  FlutterGenesisCli process = FlutterGenesisCli();
   YamlGenerator yamlGenerator = YamlGenerator();
 
   Future<void> createFlavor(FlutterAppDetails appDetails) async {
@@ -96,7 +94,7 @@ class FlavorCreator {
       runInShell: true,
     );
 
-    await AdireCliProcess().delayProcess(5, 'Starting flavorizr');
+    await FlutterGenesisCli().delayProcess(5, 'Starting flavorizr');
     await FlutterCli.pubRun(['flutter_flavorizr'], appDetails.path);
   }
 
@@ -186,14 +184,7 @@ class FlavorCreator {
               "import 'package:${flutterAppDetails.name}/app/src/$flavor/firebase_options.dart' as $flavor;");
       content = addCodeToStartOfFileContent(
           coreImport + optionsImports.join('\n'), content);
-      // content = coreImport +
-      //     '\n' +
-      //     flutterAppDetails.flavorModel!.environmentOptions
-      //         .map((flavor) =>
-      //             "import 'package:${flutterAppDetails.name}/app/src/$flavor/firebase_options.dart' as $flavor;")
-      //         .join('\n') +
-      //     '\n' +
-      //     content;
+
       final lines = content.split('\n');
 
       String addedContent = '''
@@ -212,38 +203,4 @@ class FlavorCreator {
     }
     return content;
   }
-  // String _addFirebaseFlavorConfig(
-  //   String baseName,
-  //   String content,
-  //   FlutterAppDetails flutterAppDetails,
-  // ) {
-  //   if (baseName.endsWith('flavors.dart')) {
-  //     final coreImport = "import 'package:firebase_core/firebase_core.dart';\n";
-
-  //     content = coreImport +
-  //         '\n' +
-  //         flutterAppDetails.flavorModel!.environmentOptions
-  //             .map((flavor) =>
-  //                 "import 'package:${flutterAppDetails.name}/app/src/$flavor/firebase_options.dart' as $flavor;")
-  //             .join('\n') +
-  //         '\n' +
-  //         content;
-  //     final lines = content.split('\n');
-
-  //     String addedContent = '''
-  //         static   Future<void> initializeFirebaseApp() async {
-  //       final firebaseOptions = switch (appFlavor) {
-  //       ${flutterAppDetails.flavorModel!.environmentOptions.map((flavor) => ' Flavor.$flavor => $flavor.DefaultFirebaseOptions.currentPlatform,').join('\n')}
-  //       null => ${flutterAppDetails.flavorModel!.environmentOptions.first}.DefaultFirebaseOptions.currentPlatform,
-  //     };
-  //     await Firebase.initializeApp(options: firebaseOptions);
-  //           }
-  //           ''';
-  //     final index = lines.lastIndexOf('}');
-  //     lines[index - 1] += '\n' + addedContent;
-
-  //     content = lines.join('\n');
-  //   }
-  //   return content;
-  // }
 }

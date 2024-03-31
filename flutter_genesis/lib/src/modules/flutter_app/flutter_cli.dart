@@ -21,7 +21,7 @@ import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 /// ```
 class FlutterCli {
   static late String appPath;
-  static AdireCliProcess process = AdireCliProcess();
+  static FlutterGenesisCli process = FlutterGenesisCli();
 
   static Future<void> create(
       {required FlutterAppDetails flutterAppDetails}) async {
@@ -109,13 +109,4 @@ class FlutterCli {
 
     m('Activated $packageName');
   }
-
-  // static void clearProcess() {
-  //   if (Platform.isWindows) {
-  //     // TODO: not tested
-  //     print(Process.runSync("cls", [], runInShell: true).stdout);
-  //   } else {
-  //     print(Process.runSync("clear", [], runInShell: true).stdout);
-  //   }
-  // }
 }

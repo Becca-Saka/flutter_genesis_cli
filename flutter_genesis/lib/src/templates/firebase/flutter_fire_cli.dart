@@ -23,7 +23,7 @@ class FirebaseAppException implements Exception {
 class FlutterFireCli {
   FlutterFireCli._();
   static FlutterFireCli get instance => FlutterFireCli._();
-  final AdireCliProcess process = AdireCliProcess();
+  final FlutterGenesisCli process = FlutterGenesisCli();
   final DatabaseHelper databaseHelper = DatabaseHelper();
   List<FirebaseOptions> selectedOptions = [];
 
@@ -34,8 +34,6 @@ class FlutterFireCli {
     String firebaseToken = await getFirebaseCliToken();
     getOptions();
     FirebaseAppDetails details = FirebaseAppDetails(
-      // projectId: projectId.$1,
-      // projectName: projectId.$2,
       cliToken: firebaseToken,
       selectedOptions: selectedOptions,
     );
@@ -67,27 +65,19 @@ class FlutterFireCli {
           packageName: packageName,
         ));
       }
-
-      // await process.delayProcess(30, 'Waiting for Firebase Project Sync');
     } else {
       final projectId = await getAppId(
         token: firebaseToken,
         name: appName,
         validator: (_) => true,
       );
-      // final projectId = await getAppId(firebaseToken, appName);
+
       details = details.copyWith(
         projectId: projectId.$1,
         projectName: projectId.$2,
       );
     }
 
-    // FirebaseAppDetails details = FirebaseAppDetails(
-    //   projectId: projectId.$1,
-    //   projectName: projectId.$2,
-    //   cliToken: firebaseToken,
-    //   selectedOptions: selectedOptions,
-    // );
     details = await _loadFirebaseOptions(details);
     return details;
   }
@@ -221,9 +211,8 @@ class FlutterFireCli {
               throw FirebaseAppException('Firebase project creation failed'));
 
       m('Configuring Flutter with $projectId ($name)');
-      // if (!isFlavor) {
-      await process.delayProcess(25, 'Waiting for Firebase Project Sync');
-      // }
+
+      await process.delayProcess(5, 'Waiting for Firebase Project Sync');
 
       return (projectId, name);
     } on FirebaseAppException catch (error) {
@@ -350,8 +339,6 @@ class FlutterFireCli {
     String flutterFire = 'flutterfire configure --project=${projectId}';
     flutterFire += args;
     flutterFire += ' --platforms=${platforms} --token ${token}';
-    // final flutterFire =
-    //     'flutterfire configure --project=${flutterAppDetails.firebaseAppDetails?.projectId} --platforms=${flutterAppDetails.platforms.map((e) => e.name).toList().join(',')} --token ${flutterAppDetails.firebaseAppDetails?.cliToken}';
 
     await process.run(
       'bash',

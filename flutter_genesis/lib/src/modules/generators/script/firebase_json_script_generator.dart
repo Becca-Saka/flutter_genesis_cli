@@ -19,7 +19,7 @@ class FirebaseJsonScriptGenerator {
   }
 
   Future<void> _runRubyScript(File file) async {
-    await AdireCliProcess().run(
+    await FlutterGenesisCli().run(
       'ruby',
       arguments: [file.path],
       streamOutput: false,

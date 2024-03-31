@@ -12,7 +12,7 @@ import '../../shared/logger.dart';
 ///The Interact class is used to get interactive input from the user.
 ///it provides the [Input], [Select], and [MultiSelect] classes.
 ///
-class AdireCliProcess {
+class FlutterGenesisCli {
   String getInput({
     required String prompt,
     bool Function(String)? validator,
@@ -150,8 +150,7 @@ class AdireCliProcess {
 
     if (exitCode != 0) {
       onError?.call();
-      // e('${dirResult.stderr.}');
-      // e('${dirResult.stdout}');
+
       e('EXIT CODE ${exitCode}');
       reset();
       exit(1);
