@@ -9,14 +9,17 @@ import 'package:path/path.dart';
 import 'pattern_replace.dart';
 
 class AppCopier {
-  late FlutterAppDetails flutterAppDetails;
+  // late FlutterAppDetails flutterAppDetails;
   Future<void> copyFiles(FlutterAppDetails appDetails) async {
-    flutterAppDetails = appDetails;
+    // flutterAppDetails = appDetails;
     await readFiles(
       dirPath: 'launcher/lib',
       onFile: (entity, dir) async {
-        final destinationFile =
-            _getNewPath(dirPath: dir.path, entityPath: entity.path);
+        final destinationFile = _getNewPath(
+          dirPath: dir.path,
+          entityPath: entity.path,
+          flutterAppDetails: appDetails,
+        );
         final baseName = basename(entity.path);
         if (canCopyFile(appDetails, baseName)) {
           await destinationFile.create(recursive: true);
@@ -53,7 +56,11 @@ class AppCopier {
     }
   }
 
-  File _getNewPath({required String dirPath, required String entityPath}) {
+  File _getNewPath({
+    required String dirPath,
+    required String entityPath,
+    required FlutterAppDetails flutterAppDetails,
+  }) {
     String relativePath = entityPath.baseFolder(dirPath.length);
     final destinationDirectory = '${flutterAppDetails.path}/lib';
 
@@ -148,7 +155,6 @@ class AppCopier {
   //--
   Future<void> modifyNewDestinationFiles(
       {required FlutterAppDetails appDetails}) async {
-    flutterAppDetails = appDetails;
     readFiles(
       dirPath: '${appDetails.path}/lib',
       onFile: (entity, dir) async {
@@ -160,6 +166,7 @@ class AppCopier {
             entity.path.substring(dir.path.length),
             baseName,
             content,
+            appDetails,
           );
 
           File destinationFile = new File(destinationPath.$1);
@@ -177,38 +184,48 @@ class AppCopier {
     String relativePath,
     String baseName,
     String content,
+    FlutterAppDetails flutterAppDetails,
   ) async {
     String destinationPath = '';
-    final newLines = <String>[];
+
     if (flutterAppDetails.flavorModel?.environmentOptions != null) {
-      if (flutterAppDetails.firebaseAppDetails?.flavorConfigs != null) {
-        content = _addFirebaseFlavorConfig(baseName, content);
-      }
-      destinationPath = _moveFlavorFiles(
+      final response = _moveFlavorFiles(
         baseName,
         content,
-        newLines,
         destinationPath,
         destinationDirectory,
         relativePath,
+        flutterAppDetails,
       );
+      destinationPath = response.$1;
+      // newLines.addAll(response.$2);
+      content = response.$2;
+      // newLines = response.$2;
+      // if (flutterAppDetails.firebaseAppDetails?.flavorConfigs != null) {
+      content = _addFirebaseFlavorConfig(
+        baseName,
+        content,
+        flutterAppDetails,
+      );
+      // return (destinationPath, content);
+      // }
     }
     if (destinationPath.isEmpty) {
       destinationPath = '$destinationDirectory$relativePath';
     }
-    if (newLines.isNotEmpty) {
-      content = newLines.join('\n');
-    }
+
     return (destinationPath, content);
   }
 
-  String _moveFlavorFiles(
-      String baseName,
-      String content,
-      List<String> newLines,
-      String destinationPath,
-      String destinationDirectory,
-      String relativePath) {
+  (String, String) _moveFlavorFiles(
+    String baseName,
+    String content,
+    String destinationPath,
+    String destinationDirectory,
+    String relativePath,
+    FlutterAppDetails flutterAppDetails,
+  ) {
+    List<String> newLines = <String>[];
     for (var flavor in flutterAppDetails.flavorModel!.environmentOptions) {
       final flavorPath = 'main_${flavor.toLowerCase()}.dart';
 
@@ -222,40 +239,60 @@ class AppCopier {
             oldPattern: "import '",
             newPattern: "import 'package:${flutterAppDetails.name}/",
           );
+          if (flutterAppDetails.firebaseAppDetails != null) {
+            if (line.contains('await runner.main();')) {
+              newLines.add('await F.initializeFirebaseApp();');
+            }
+          }
           newLines.add(line);
         }
+
         // if (lines.contains(""))
         // File oldPath = new File('$destinationDirectory$relativePath');
 
         // await oldPath.delete(recursive: true);
-        destinationPath = '$destinationDirectory/app/src$relativePath';
+        destinationPath = '$destinationDirectory/app/src/$flavor/$baseName';
       }
     }
-    return destinationPath;
+    if (newLines.isNotEmpty) {
+      content = newLines.join('\n');
+    }
+    return (destinationPath, content);
   }
 
-  String _addFirebaseFlavorConfig(String baseName, String content) {
+  String _addFirebaseFlavorConfig(
+    String baseName,
+    String content,
+    FlutterAppDetails flutterAppDetails,
+  ) {
+    // String content = newLines.join('\n');
     if (baseName.endsWith('flavors.dart')) {
-      final coreImport = 'import \'package:flutter_core/flutter_core.dart\';';
-      content = coreImport + content;
-      content = flutterAppDetails.flavorModel!.environmentOptions
+      final coreImport = "import 'package:firebase_core/firebase_core.dart';\n";
+      // final coreImport = 'import \'package:flutter_core/flutter_core.dart\';';
+      // content = coreImport + content;
+
+      content = coreImport +
+          '\n' +
+          flutterAppDetails.flavorModel!.environmentOptions
               .map((flavor) =>
-                  "import 'package:${flutterAppDetails.name}/src/$flavor/firebase_options_$flavor.dart' as $flavor;")
+                  "import 'package:${flutterAppDetails.name}/app/src/$flavor/firebase_options.dart' as $flavor;")
               .join('\n') +
+          '\n' +
           content;
       final lines = content.split('\n');
 
       String addedContent = '''
-           Future<void> initializeFirebaseApp() async {
-      final firebaseOptions = switch (appFlavor) {
-      ${flutterAppDetails.flavorModel!.environmentOptions.map((flavor) => ' Flavor.$flavor => $flavor.DefaultFirebaseOptions.currentPlatform,').join('\n')}
-      null => ${flutterAppDetails.flavorModel!.environmentOptions.first}.DefaultFirebaseOptions.currentPlatform,
-    };
-    await Firebase.initializeApp(options: firebaseOptions);
-          }
-          ''';
+          static   Future<void> initializeFirebaseApp() async {
+        final firebaseOptions = switch (appFlavor) {
+        ${flutterAppDetails.flavorModel!.environmentOptions.map((flavor) => ' Flavor.$flavor => $flavor.DefaultFirebaseOptions.currentPlatform,').join('\n')}
+        null => ${flutterAppDetails.flavorModel!.environmentOptions.first}.DefaultFirebaseOptions.currentPlatform,
+      };
+      await Firebase.initializeApp(options: firebaseOptions);
+            }
+            ''';
+      final index = lines.lastIndexOf('}');
+      lines[index - 1] += '\n' + addedContent;
 
-      lines[lines.lastIndexOf('}') - 1] += '\n' + addedContent;
       content = lines.join('\n');
     }
     return content;
@@ -264,7 +301,6 @@ class AppCopier {
   Future<void> cleanUpComments({
     required FlutterAppDetails appDetails,
   }) async {
-    flutterAppDetails = appDetails;
     final filesToDelete = [
       'lib/app.dart',
       ...appDetails.flavorModel?.environmentOptions

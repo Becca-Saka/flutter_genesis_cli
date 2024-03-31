@@ -116,7 +116,6 @@ class YamlGenerator {
     }
     flavorMaps = flavorMaps.removeNullValues;
     String yaml = _writer.write({'flavors': flavorMaps});
-    print({'flavors': flavorMaps});
     File file = File('${flutterAppDetails.path}/flavorizr.yaml');
     file.createSync();
     file.writeAsStringSync(yaml);

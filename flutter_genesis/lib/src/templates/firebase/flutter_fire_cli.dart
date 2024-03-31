@@ -47,21 +47,35 @@ class FlutterFireCli {
       for (var i = 0; i < flavorsEnvironment.length; i++) {
         final name = namesByFlavor?.entries.elementAt(i).value ?? appName;
         final flavor = flavorsEnvironment[i];
+        final packageName = flavors.packageId![flavor]!;
         m('Configuring Firebase project for' + ' $name'.bold() + '-${flavor}');
         final projectId = await getAppId(
-          firebaseToken,
-          '${name}-${flavor}',
+          token: firebaseToken,
+          name: '${name}-${flavor}',
+          validator: (p0) {
+            final valid = details.flavorConfigs!.where((element) =>
+                element.projectId == p0 && element.packageName == packageName);
+
+            return valid.isEmpty;
+          },
         );
+
         details.flavorConfigs!.add(FirebaseFlavorConfig(
           flavor: flavor,
           projectId: projectId.$1,
           projectName: projectId.$2,
+          packageName: packageName,
         ));
       }
 
       // await process.delayProcess(30, 'Waiting for Firebase Project Sync');
     } else {
-      final projectId = await getAppId(firebaseToken, appName);
+      final projectId = await getAppId(
+        token: firebaseToken,
+        name: appName,
+        validator: (_) => true,
+      );
+      // final projectId = await getAppId(firebaseToken, appName);
       details = details.copyWith(
         projectId: projectId.$1,
         projectName: projectId.$2,
@@ -125,16 +139,26 @@ class FlutterFireCli {
     return firebaseToken;
   }
 
-  Future<(String, String)> getAppId(String token, String name) async {
+  Future<(String, String)> getAppId({
+    required String token,
+    required String name,
+    required bool Function(String) validator,
+  }) async {
     // return (appId['id']! as String, appId['name']! as String);
     // var appId = null;
-    //TODO: solve FirebaseProjectNotFoundException error to create a new project
+    // TODO: solve FirebaseProjectNotFoundException error to create a new project
     m('Listing existing firebase projects');
     final appId = await _listProject(token, name);
     if (appId == null) {
       return _createAppId(token, name);
     } else {
-      return (appId['id']! as String, appId['name']! as String);
+      final projectId = appId['id']! as String;
+      if (validator(projectId)) {
+        return (projectId, appId['name']! as String);
+      } else {
+        e('$projectId already has a project with that package name. Please try again');
+        return await getAppId(name: name, token: token, validator: validator);
+      }
     }
   }
 
@@ -246,7 +270,7 @@ class FlutterFireCli {
       if (flavorModel != null && flavorConfigs != null) {
         for (int i = 0; i < flavorModel.environmentOptions.length; i++) {
           final flavor = flavorModel.environmentOptions[i];
-          String args = ' --out=lib/firebase/$flavor/firebase_options.dart';
+          String args = ' --out=lib/app/src/$flavor/firebase_options.dart';
           args += ' --android-package-name=${flavorModel.packageId![flavor]}';
           args += ' --ios-bundle-id=${flavorModel.packageId![flavor]}';
           final firebaseFlavorConfig =

@@ -154,10 +154,7 @@ class FlutterApp {
     await _appCopier.modifyNewDestinationFiles(appDetails: flutterAppDetails);
     await _removeCode(flutterAppDetails);
     await _appCopier.cleanUpComments(appDetails: flutterAppDetails);
-
-    print('Beging clean ' +
-        await File('${flutterAppDetails.path}/lib/main.dart').readAsString());
-    _cleanUp(flutterAppDetails);
+    await _cleanUp(flutterAppDetails);
   }
 
   Future<void> _copyFiles(FlutterAppDetails flutterAppDetails) async =>

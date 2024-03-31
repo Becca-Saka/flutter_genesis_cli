@@ -578,7 +578,7 @@ class FlavorManager {
       runInShell: true,
     );
 
-    await AdireCliProcess().delayProcess(5, 'wait');
+    await AdireCliProcess().delayProcess(5, 'Starting flavorizr');
     await FlutterCli.pubRun(['flutter_flavorizr'], appDetails.path);
   }
 }

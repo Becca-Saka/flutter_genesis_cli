@@ -12,7 +12,7 @@ Future<void> removeCode(FlutterAppDetails appDetails) async {
   _deleteFolder(join(appDetails.path, 'test'));
   // _deleteFolder(join(appDetails.path, 'lib/ui'));
   if (appDetails.firebaseAppDetails == null) {
-    await modifyCoreFiles(appDetails);
+    // await modifyCoreFiles(appDetails);
   }
 }
 

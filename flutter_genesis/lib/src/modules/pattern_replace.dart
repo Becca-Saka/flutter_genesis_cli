@@ -23,7 +23,7 @@ String removeAppMarker(List<String> inputContent) {
       newLines.add(line);
     }
   }
-  print(newLines);
+
   return newLines.join('\n');
 }
 
@@ -42,7 +42,6 @@ String removeLinesBetweenMarkers(List<String> inputContent, String marker) {
     if (line.contains(startMarker)) {
       inBlock = true;
     }
-    print('inBlock: $inBlock line: $line');
   }
 
   return newLines.join('\n');

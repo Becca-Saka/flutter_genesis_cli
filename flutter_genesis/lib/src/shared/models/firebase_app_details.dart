@@ -88,9 +88,11 @@ class FirebaseFlavorConfig {
   final String flavor;
   final String projectId;
   final String projectName;
+  final String packageName;
   FirebaseFlavorConfig({
     required this.flavor,
     required this.projectId,
     required this.projectName,
+    required this.packageName,
   });
 }
