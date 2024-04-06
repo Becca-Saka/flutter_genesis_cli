@@ -35,12 +35,15 @@ Future<void> modifyCoreFiles(FlutterAppDetails appDetails) async {
     if (direc.existsSync()) {
       final inputContent = direc.readAsStringSync();
       String modifiedContent = inputContent;
-      if (appDetails.flavorModel != null) {
+      final firebaseDetails = appDetails.firebaseAppDetails;
+
+      if (firebaseDetails?.flavorConfigs != null) {
         modifiedContent = modifyExistingFile(inputContent, 'flavor');
       }
-      if (appDetails.firebaseAppDetails == null) {
+      if (firebaseDetails == null) {
         modifiedContent = modifyExistingFile(inputContent, 'noAuth');
       }
+
       await direc.writeAsString(modifiedContent);
     }
   }

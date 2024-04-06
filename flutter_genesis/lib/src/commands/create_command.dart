@@ -46,12 +46,13 @@ class CreateApp extends Command {
     final flavor = argResults?['flavor'] as String?;
 
     FlutterApp app = FlutterApp();
-    await app.init(
+    final flutterAppDetails = await app.init(
       name: appName,
       package: orgName,
       path: path,
       flavor: flavor,
     );
+    await app.postCreate(flutterAppDetails);
     // print('Creating app $appName with org $orgName and flavor $flavor');
     // final paas = argResults?['paas'] as String?;
     // final analytics = argResults?['analytics'] as String?;
