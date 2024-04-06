@@ -1,2 +1,7 @@
-
-/examples/
+# https://dart.dev/guides/libraries/private-files
+# Created by `dart pub`
+.dart_tool/
+generated/
+.mason/
+lib/src/templates/token.dart
+.flutter_genesis_cli.db
