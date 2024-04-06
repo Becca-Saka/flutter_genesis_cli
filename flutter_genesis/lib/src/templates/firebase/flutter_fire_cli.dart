@@ -11,7 +11,6 @@ import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 import 'package:flutter_genesis/src/shared/validators.dart';
 import 'package:flutter_genesis/src/templates/firebase/firebase_package_manager.dart';
 import 'package:flutter_genesis/src/templates/flavors/flavor_model.dart';
-import 'package:flutter_genesis/src/templates/token.dart';
 import 'package:tint/tint.dart';
 import 'package:uuid/uuid.dart';
 
@@ -117,7 +116,7 @@ class FlutterFireCli {
     } else {
       firebaseToken = process.getInput(
         prompt: 'Enter your Firebase CLI token',
-        initialText: tokenAdire,
+        // initialText: tokenAdire,
         validator: (val) => AppValidators.notNullAndNotEmpty(val,
             message: 'Token cannot be empty'),
       );

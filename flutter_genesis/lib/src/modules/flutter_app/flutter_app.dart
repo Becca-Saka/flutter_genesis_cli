@@ -23,11 +23,36 @@ class FlutterApp {
   FlutterGenesisCli process = FlutterGenesisCli();
   BaseFlavorManager _flavorManager = BaseFlavorManager();
   AppCopier _appCopier = AppCopier();
-  Future<FlutterAppDetails> init() async {
-    final name = _getAppName();
-    final package = _getPackageName(name);
-    final path = _getPath();
-    final flavors = await _flavorManager.getFlavorInfomation(package);
+  Future<FlutterAppDetails> init({
+    String? name,
+    String? package,
+    String? path,
+    String? flavor,
+  }) async {
+    if (name == null) {
+      name = _getAppName();
+    }
+
+    if (package == null) {
+      package = _getPackageName(name);
+    }
+
+    if (path == null) {
+      path = _getPath();
+    }
+
+    final flavors = await _flavorManager.getFlavorInfomation(
+      package: package,
+      model: flavor != null && flavor.isNotEmpty
+          ? FlavorModel(
+              environmentOptions:
+                  flavor.split(',').map((e) => e.trim()).toList())
+          : null,
+    );
+
+    // final package = _getPackageName(name);
+    // final path = _getPath();
+    // final flavors = await _flavorManager.getFlavorInfomation(package);
     final templates = _getTemplateOptions();
     final platforms = _getPlatformOptions();
     final firebaseAppDetails =

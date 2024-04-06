@@ -16,17 +16,28 @@ class FlavorInfoManager {
   FlutterGenesisCli process = FlutterGenesisCli();
   YamlGenerator yamlGenerator = YamlGenerator();
 
-  Future<FlavorModel?> getFlavorInfomation(String package) async {
-    final response = process.getConfirmation(
-      prompt: 'Do you want app flavors?',
-      defaultValue: false,
-    );
-    if (response) {
-      final selectedFlavors = _getFlavors();
-      m('You chose flavor(s): $selectedFlavors');
-      FlavorModel model = FlavorModel(
-        environmentOptions: selectedFlavors,
+  Future<FlavorModel?> getFlavorInfomation({
+    required String package,
+    FlavorModel? model,
+  }) async {
+    bool response = false;
+    if (model == null || model.environmentOptions.isEmpty) {
+      response = process.getConfirmation(
+        prompt: 'Do you want app flavors?',
+        defaultValue: false,
       );
+    } else {
+      response = true;
+    }
+    if (response) {
+      if (model == null || model.environmentOptions.isEmpty) {
+        final selectedFlavors = _getFlavors();
+        model = FlavorModel(
+          environmentOptions: selectedFlavors,
+        );
+        m('You chose flavor(s): $selectedFlavors');
+      }
+      final selectedFlavors = model.environmentOptions;
       model.name = _getFlavorAppName(selectedFlavors);
       model.packageId = _getFlavorAppId(selectedFlavors, package);
       model.imagePaths = await _getFlavorImage(selectedFlavors);

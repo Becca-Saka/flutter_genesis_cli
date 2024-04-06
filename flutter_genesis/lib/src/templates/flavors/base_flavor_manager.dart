@@ -9,8 +9,12 @@ import 'flavor_model.dart';
 class BaseFlavorManager {
   FlavorCreator _flavorCreator = FlavorCreator();
   FlavorInfoManager _flavorInfoManager = FlavorInfoManager();
-  Future<FlavorModel?> getFlavorInfomation(String package) async {
-    return await _flavorInfoManager.getFlavorInfomation(package);
+  Future<FlavorModel?> getFlavorInfomation({
+    required String package,
+    FlavorModel? model,
+  }) async {
+    return await _flavorInfoManager.getFlavorInfomation(
+        package: package, model: model);
   }
 
   Future<void> createFlavor(FlutterAppDetails appDetails) async {

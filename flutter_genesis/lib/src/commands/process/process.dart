@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:interact/interact.dart';
+import 'package:tint/tint.dart';
 
 import '../../shared/logger.dart';
 
@@ -16,16 +17,66 @@ class FlutterGenesisCli {
   String getInput({
     required String prompt,
     bool Function(String)? validator,
-    String initialText = '',
+    String? initialText,
     String? defaultValue,
   }) {
-    return Input(
-      prompt: prompt,
-      defaultValue: defaultValue,
-      initialText: initialText,
-      validator: validator,
-    ).interact();
+    try {
+      String promptBold = prompt.bold();
+
+      String questionMark = '? '.yellow();
+      String checkMark = '✔ '.green();
+      String forwardMark = ' › '.grey();
+      String seperator = ' · '.grey();
+      String text = questionMark + promptBold;
+      if (defaultValue != null) {
+        text += ' (${defaultValue})'.grey();
+      }
+      if (initialText != null) {
+        text += ' ' + initialText;
+      }
+
+      stdout.write(text + forwardMark);
+
+      stdin.echoMode = true;
+
+      String? input = stdin.readLineSync();
+      if (input == null || input.isEmpty) {
+        input = defaultValue ?? initialText;
+      }
+      if (validator != null) {
+        while (!validator(input ?? '')) {
+          input = stdin.readLineSync();
+        }
+      }
+      stdout.write('\x1B[1A\x1B[2K');
+      stdout.writeln(
+          checkMark + promptBold + seperator + '${input ?? ''}'.green());
+
+      return input ?? '';
+    } on ValidationError catch (err) {
+      e(err.message);
+      return getInput(
+        prompt: prompt,
+        validator: validator,
+        initialText: initialText,
+        defaultValue: defaultValue,
+      );
+    }
   }
+
+  // String getInput({
+  //   required String prompt,
+  //   bool Function(String)? validator,
+  //   String initialText = '',
+  //   String? defaultValue,
+  // }) {
+  //   return Input(
+  //     prompt: prompt,
+  //     defaultValue: defaultValue,
+  //     initialText: initialText,
+  //     validator: validator,
+  //   ).interact();
+  // }
 
   bool getConfirmation({
     required String prompt,
