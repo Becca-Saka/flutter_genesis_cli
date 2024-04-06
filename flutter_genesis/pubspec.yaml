@@ -1,5 +1,5 @@
 name: flutter_genesis
-description: A sample command-line application with basic argument parsing.
+description: A CLI for starting Flutter projects
 version: 0.0.1
 # repository: https://github.com/my_org/my_repo
 environment:

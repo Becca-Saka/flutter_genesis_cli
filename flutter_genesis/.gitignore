@@ -5,3 +5,4 @@ generated/
 .mason/
 lib/src/templates/token.dart
 .flutter_genesis_cli.db
+android/app/google-services.json
