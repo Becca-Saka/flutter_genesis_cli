@@ -115,3 +115,14 @@ List<String> _appendCode(
   }
   return lines;
 }
+
+String writeInLoop({
+  required List<String> tempEnv,
+  required String Function(String) line,
+}) {
+  String contents = "";
+  for (var flavor in tempEnv) {
+    contents += line(flavor);
+  }
+  return contents;
+}

@@ -10,13 +10,13 @@ The Genesis of all complex apps.
 
 ## Check list
 - [ ] State managements -[Suspended]
-- [ ] Flavor integration
+- [x] Flavor integration
 - [ ] Testing basics
-- [ ] .vscdode for flavors launcher
+- [x] .vscdode for flavors launcher
 - [ ] .env configuration
 - [ ] Native icon
 - [ ] Native splash screen
-- [ ] Firebase integration
+- [x] Firebase integration
 - [ ] Superbase integration
 - [ ] Amplify integration
 - [ ] Sentry extension

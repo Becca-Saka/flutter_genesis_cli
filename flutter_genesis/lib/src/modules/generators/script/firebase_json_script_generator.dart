@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_genesis/src/commands/process/process.dart';
+import 'package:flutter_genesis/src/modules/file_modifier.dart';
 import 'package:flutter_genesis/src/shared/models/flutter_app_details.dart';
 
 class FirebaseJsonScriptGenerator {
@@ -65,7 +66,7 @@ FIREBASE_APP_ID_FILE=firebase_app_id_file.json
 # NOTE: These should only live on the file system and should NOT be part of the target (since we'll be adding them to the target manually)
 
 ''';
-    final fileName = _writeInLoop(
+    final fileName = writeInLoop(
       tempEnv: flavors,
       line: (flavor) {
         final flavorUppperCase = flavor.toUpperCase();
@@ -80,7 +81,7 @@ echo \${TARGET_NAME}
 
 
 ''';
-    final fileSearch = _writeInLoop(
+    final fileSearch = writeInLoop(
       tempEnv: flavors,
       line: (flavor) {
         final flavorUppperCase = flavor.toUpperCase();
@@ -143,17 +144,6 @@ fi
       }
 
       contents += line(flavor, condtionalBlock);
-    }
-    return contents;
-  }
-
-  String _writeInLoop({
-    required List<String> tempEnv,
-    required String Function(String) line,
-  }) {
-    String contents = "";
-    for (var flavor in tempEnv) {
-      contents += line(flavor);
     }
     return contents;
   }

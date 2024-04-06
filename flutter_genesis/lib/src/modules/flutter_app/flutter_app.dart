@@ -5,6 +5,7 @@ import 'package:flutter_genesis/src/modules/app_copier.dart';
 import 'package:flutter_genesis/src/modules/app_excluder.dart';
 import 'package:flutter_genesis/src/modules/flutter_app/flutter_cli.dart';
 import 'package:flutter_genesis/src/modules/flutter_app/flutter_package_manager.dart';
+import 'package:flutter_genesis/src/modules/generators/json/vscode_launcher_gen.dart';
 import 'package:flutter_genesis/src/shared/extensions/lists.dart';
 import 'package:flutter_genesis/src/shared/logger.dart';
 import 'package:flutter_genesis/src/shared/models/firebase_app_details.dart';
@@ -180,6 +181,7 @@ class FlutterApp {
     await process.delayProcess(3, 'Cleaning up');
     await _removeCode(flutterAppDetails);
     await _appCopier.cleanUpComments(appDetails: flutterAppDetails);
+    await VsCodeLauncherGenerator().create(flutterAppDetails);
     await _cleanUp(flutterAppDetails);
   }
 

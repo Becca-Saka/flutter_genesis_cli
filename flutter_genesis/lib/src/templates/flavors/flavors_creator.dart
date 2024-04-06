@@ -141,19 +141,20 @@ class FlavorCreator {
         if (baseName.endsWith(flavorPath)) {
           print('-------found: $flavorPath-----');
           final firebaseDetails = flutterAppDetails.firebaseAppDetails;
-          if (firebaseDetails != null) {
+          if (flutterAppDetails.flavorModel != null) {
             content = replaceByPattern(
               content,
               oldPattern: "import '",
               newPattern: "import 'package:${flutterAppDetails.name}/",
             );
-            if (firebaseDetails.flavorConfigs != null) {
-              content = addCodeNearLineInContent(
-                content: content,
-                condition: 'await runner.main();',
-                codeToAddAbove: 'await F.initializeFirebaseApp();',
-              );
-            }
+          }
+          if (firebaseDetails != null &&
+              firebaseDetails.flavorConfigs != null) {
+            content = addCodeNearLineInContent(
+              content: content,
+              condition: 'await runner.main();',
+              codeToAddAbove: 'await F.initializeFirebaseApp();',
+            );
           }
 
           destinationPath = '$destinationDirectory/app/src/$flavor/$baseName';
