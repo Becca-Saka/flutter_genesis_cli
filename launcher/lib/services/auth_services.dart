@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // END REMOVE BLOCK: firestore
 
 import 'package:firebase_auth/firebase_auth.dart';
+// START REMOVE BLOCK: database
+import 'package:firebase_database/firebase_database.dart';
+// END REMOVE BLOCK: database
 import 'package:flutter/material.dart';
 // START REMOVE BLOCK: googleAuth
 import 'package:google_sign_in/google_sign_in.dart';
@@ -15,7 +18,9 @@ class AuthService {
 // START REMOVE BLOCK: firestore
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 // END REMOVE BLOCK: firestore
-
+// START REMOVE BLOCK: database
+  final FirebaseDatabase _database = FirebaseDatabase.instance;
+// END REMOVE BLOCK: database
 // START REMOVE BLOCK: googleAuth
   final _googleSignIn = GoogleSignIn(scopes: ['email']);
 // END REMOVE BLOCK: googleAuth
@@ -34,7 +39,7 @@ class AuthService {
     }
   }
 
-// START REMOVE BLOCK: firestore
+  // START REMOVE BLOCK: firestore
   Future<bool> saveUserDetails({
     required String uid,
     required String email,
@@ -56,6 +61,28 @@ class AuthService {
   }
 
 // END REMOVE BLOCK: firestore
+// START REMOVE BLOCK: database
+  Future<bool> storeUserDetails({
+    required String uid,
+    required String email,
+  }) async {
+    try {
+      await _database.ref('users').child(uid).set({
+        'uid': uid,
+        'email': email,
+      });
+
+      return true;
+    } on FirebaseException catch (e) {
+      final message = AuthExceptionHandler.handleFirebaseAuthException(e);
+      throw AuthException(message);
+    } on Exception catch (e, s) {
+      debugPrint('$e\n$s');
+      rethrow;
+    }
+  }
+
+// END REMOVE BLOCK: database
 
   Future<bool> login(String email, String password) async {
     try {
@@ -92,8 +119,27 @@ class AuthService {
       rethrow;
     }
   }
-// END REMOVE BLOCK: firestore
 
+// END REMOVE BLOCK: firestore
+// START REMOVE BLOCK: database
+  Future<UserModel> retrieveCurrentUserData(
+      String uid, String email, String password) async {
+    try {
+      final response = await _database.ref('users').child(uid).get();
+      if (response.exists && response.value != null) {
+        return UserModel.fromMap(response.value! as Map<String, dynamic>);
+      }
+      throw AuthException('User not found');
+    } on FirebaseException catch (e) {
+      final message = AuthExceptionHandler.handleFirebaseAuthException(e);
+      throw AuthException(message);
+    } on Exception catch (e, s) {
+      debugPrint('$e\n$s');
+      rethrow;
+    }
+  }
+
+// END REMOVE BLOCK: database
   Future<bool> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);

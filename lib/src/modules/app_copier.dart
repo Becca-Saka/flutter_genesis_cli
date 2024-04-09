@@ -14,13 +14,13 @@ class AppCopier {
     await readFiles(
       dirPath: 'launcher/lib',
       onFile: (entity, dir) async {
-        final destinationFile = _getNewPath(
-          dirPath: dir.path,
-          entityPath: entity.path,
-          flutterAppDetails: appDetails,
-        );
-        final baseName = basename(entity.path);
-        if (canCopyFile(appDetails, baseName)) {
+        if (canCopyFile(appDetails, entity.path)) {
+          final baseName = basename(entity.path);
+          final destinationFile = _getNewPath(
+            dirPath: dir.path,
+            entityPath: entity.path,
+            flutterAppDetails: appDetails,
+          );
           await destinationFile.create(recursive: true);
           var content = await entity.readAsString();
           String modifiedContent = _changeAppImportName(content, appDetails);
@@ -83,6 +83,8 @@ class AppCopier {
         if (hasAuth) {
           final hasFirestore = appDetails.firebaseAppDetails!.selectedOptions
               .hasValue(FirebaseOptions.firestore);
+          final hasDatabase = appDetails.firebaseAppDetails!.selectedOptions
+              .hasValue(FirebaseOptions.database);
           final hasGoogleSignIn = appDetails
                   .firebaseAppDetails!.authenticationMethods
                   ?.hasValue(AuthenticationMethod.google) ??
@@ -91,6 +93,10 @@ class AppCopier {
           if (!hasFirestore) {
             content =
                 removeLinesBetweenMarkers(content.split('\n'), 'firestore');
+          }
+          if (!hasDatabase) {
+            content =
+                removeLinesBetweenMarkers(content.split('\n'), 'database');
           }
           if (!hasGoogleSignIn) {
             content = removeLinesBetweenMarkers(
@@ -111,8 +117,10 @@ class AppCopier {
       'sign_up_page.dart',
       'auth_services.dart',
     ];
-    if (appDetails.firebaseAppDetails == null) {
-      if (authPaths.contains(path)) {
+
+    bool hasFirebase = appDetails.firebaseAppDetails != null;
+    if (!hasFirebase) {
+      if (authPaths.contains(basename(path))) {
         return false;
       }
     }

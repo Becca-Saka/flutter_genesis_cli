@@ -47,6 +47,30 @@ String removeLinesBetweenMarkers(List<String> inputContent, String marker) {
   return newLines.join('\n');
 }
 
+String copyLinesBetweenMarkers(List<String> inputContent, String marker) {
+  var inBlock = false;
+  String startMarker = '// START ADD BLOCK: $marker';
+  String endMarker = '// END ADD BLOCK: $marker';
+  var newLines = <String>[];
+  // print(inputContent);
+  for (var line in inputContent) {
+    if (line.contains(endMarker)) {
+      inBlock = false;
+      // print('NOT IN BLOCK ' + line);
+    }
+    if (inBlock) {
+      newLines.add(line);
+      // print(line);
+    }
+    if (line.contains(startMarker)) {
+      inBlock = true;
+      // print('IN BLOCK' + line);
+    }
+  }
+
+  return newLines.join('\n');
+}
+
 String removeCommentBetweenMarkers(List<String> inputContent, String marker) {
   var inBlock = false;
   String startMarker = '// START REMOVE COMMENT: $marker';

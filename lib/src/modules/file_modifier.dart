@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter_genesis_cli/src/modules/pattern_replace.dart';
+
 Future<void> readFiles({
   required String dirPath,
   Function(File, Directory)? onFile,
@@ -125,4 +127,85 @@ String writeInLoop({
     contents += line(flavor);
   }
   return contents;
+}
+
+Future<String> mergeTwoFiles({
+  required String firstFilePath,
+  required String secondFilePath,
+  required String newClassName,
+  required List<String> flags,
+}) async {
+  var file1 = File(firstFilePath);
+  var file2 = File(secondFilePath);
+  var file1Content = await file1.readAsString();
+  var file2Content = await file2.readAsString();
+
+  List<String> file1Lines = file1Content.split('\n');
+  List<String> file2Lines = file2Content.split('\n');
+
+  // Extracting imports from each file
+  List<String> file1Imports = [];
+  String file1Variables = copyLinesBetweenMarkers(file1Lines, 'variable');
+  List<String> file2Imports = [];
+  String file2Variables = copyLinesBetweenMarkers(file2Lines, 'variable');
+
+  for (String line in file1Lines) {
+    if (line.trimLeft().startsWith('import ')) {
+      file1Imports.add(line);
+    }
+  }
+  for (String line in file2Lines) {
+    if (line.trimLeft().startsWith('import ')) {
+      file2Imports.add(line);
+    }
+  }
+
+  String file1ClassBody = _extractClassBody(
+    content: file1Content,
+    flags: flags,
+    excludeLine: file1Variables.split('\n'),
+  );
+  String file2ClassBody = _extractClassBody(
+    content: file2Content,
+    flags: flags,
+    excludeLine: file2Variables.split('\n'),
+  );
+
+  // Merging class bodies
+  String mergedClassBody =
+      file1ClassBody.trim() + '\n\n' + file2ClassBody.trim();
+
+  // Merging imports, class definition, and class bodies
+  final mergedImports = file1Imports + file2Imports;
+  final variables = file1Variables + '\n' + file2Variables;
+  String mergedContent = mergedImports.join('\n') +
+      '\n\n' +
+      'class $newClassName {${variables}\n\n$mergedClassBody\n}';
+
+  return mergedContent;
+}
+
+String _extractClassBody({
+  required String content,
+  required List<String> flags,
+  required List<String> excludeLine,
+}) {
+  String classBody = content.split('class ')[1];
+  classBody = classBody.substring(classBody.indexOf('{') + 1);
+  classBody = classBody.substring(0, classBody.lastIndexOf('}'));
+  List<String> newLines = [];
+
+  for (var line in classBody.split('\n')) {
+    if (!excludeLine.contains(line)) {
+      newLines.add(line);
+    }
+  }
+  classBody = newLines.join('\n');
+  newLines = [];
+  for (var flag in flags) {
+    final newBody = copyLinesBetweenMarkers(classBody.split('\n'), flag);
+    newLines.addAll(newBody.split('\n'));
+  }
+
+  return newLines.join('\n');
 }
