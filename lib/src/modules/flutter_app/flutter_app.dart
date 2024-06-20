@@ -6,6 +6,7 @@ import 'package:flutter_genesis_cli/src/modules/app_excluder.dart';
 import 'package:flutter_genesis_cli/src/modules/flutter_app/flutter_cli.dart';
 import 'package:flutter_genesis_cli/src/modules/flutter_app/flutter_package_manager.dart';
 import 'package:flutter_genesis_cli/src/modules/generators/json/vscode_launcher_gen.dart';
+import 'package:flutter_genesis_cli/src/modules/generators/yaml/yaml_generator.dart';
 import 'package:flutter_genesis_cli/src/shared/extensions/lists.dart';
 import 'package:flutter_genesis_cli/src/shared/logger.dart';
 import 'package:flutter_genesis_cli/src/shared/models/firebase_app_details.dart';
@@ -42,6 +43,8 @@ class FlutterApp {
       path = _getPath();
     }
 
+    final iconPath = _getIconPath();
+
     final flavors = await _flavorManager.getFlavorInfomation(
       package: package,
       model: flavor != null && flavor.isNotEmpty
@@ -65,6 +68,7 @@ class FlutterApp {
       packageName: package,
       templates: templates,
       platforms: platforms,
+      iconPath: iconPath,
       firebaseAppDetails: firebaseAppDetails,
       flavorModel: flavors,
     );
@@ -108,6 +112,16 @@ class FlutterApp {
       Directory(appPath).createSync(recursive: true);
     }
     return appPath;
+  }
+
+  String? _getIconPath() {
+    final path = process.getInput(
+      prompt: 'Path to your app icon',
+    );
+    if (path.isNotEmpty) {
+      return path;
+    }
+    return null;
   }
 
   String _getPackageName(String name) {
@@ -176,13 +190,28 @@ class FlutterApp {
       await _flavorManager.createFlavor(flutterAppDetails);
       await _flavorManager.modifyNewDestinationFiles(flutterAppDetails);
     }
-
-    await _copyFiles(flutterAppDetails);
-    await process.delayProcess(3, 'Cleaning up');
-    await _removeCode(flutterAppDetails);
-    await _appCopier.cleanUpComments(appDetails: flutterAppDetails);
+    if (flutterAppDetails.copyTempFiles) {
+      await _copyFiles(flutterAppDetails);
+      await process.delayProcess(3, 'Cooling down');
+      await _removeCode(flutterAppDetails);
+      await _appCopier.cleanUpComments(appDetails: flutterAppDetails);
+    }
+    await _addIcons(flutterAppDetails);
     await VsCodeLauncherGenerator().create(flutterAppDetails);
     await _cleanUp(flutterAppDetails);
+  }
+
+  Future<void> _addIcons(FlutterAppDetails flutterAppDetails) async {
+    if (flutterAppDetails.iconPath != null) {
+      await FlutterCli.pubAdd(
+          ['flutter_launcher_icons'], flutterAppDetails.path);
+      YamlGenerator yamlGenerator = YamlGenerator();
+      yamlGenerator.generateLauncherIconConfig(flutterAppDetails);
+
+      await process.delayProcess(3, 'Cooling down');
+      await FlutterCli.pubRun(
+          ['flutter_launcher_icons'], flutterAppDetails.path);
+    }
   }
 
   Future<void> _copyFiles(FlutterAppDetails flutterAppDetails) async =>
@@ -196,3 +225,4 @@ class FlutterApp {
     await FlutterCli.format(flutterAppDetails.path);
   }
 }
+//TODO: remove exception, and user model folder,

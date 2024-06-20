@@ -14,14 +14,18 @@ enum FlutterAppPlatform {
 class FlutterAppDetails {
   final String name;
   final String path;
+  final String? iconPath;
   final String packageName;
   final List<TemplateOptions> templates;
   final List<FlutterAppPlatform> platforms;
   final FirebaseAppDetails? firebaseAppDetails;
   final FlavorModel? flavorModel;
+  bool get copyTempFiles =>
+      flavorModel != null || templates.isNotEmpty || firebaseAppDetails != null;
   FlutterAppDetails({
     required this.name,
     required this.path,
+    required this.iconPath,
     required this.packageName,
     required this.templates,
     required this.platforms,
@@ -32,6 +36,7 @@ class FlutterAppDetails {
   FlutterAppDetails copyWith({
     String? name,
     String? path,
+    String? iconPath,
     String? packageName,
     List<TemplateOptions>? templates,
     List<FlutterAppPlatform>? platforms,
@@ -41,6 +46,7 @@ class FlutterAppDetails {
     return FlutterAppDetails(
       name: name ?? this.name,
       path: path ?? this.path,
+      iconPath: iconPath ?? this.iconPath,
       packageName: packageName ?? this.packageName,
       templates: templates ?? this.templates,
       platforms: platforms ?? this.platforms,

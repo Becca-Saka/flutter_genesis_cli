@@ -30,6 +30,7 @@ The Genesis of all complex apps.
 - [ ] Laguage support
 - [ ] add to existing project
 - [ ] VSCode extension
+- [ ] Deep links(Flavored)
 
 ### Firebase
 - Login with google credentials in info.plist ??
@@ -40,3 +41,6 @@ The Genesis of all complex apps.
 ## Notes for documentation
 
 if you use this packege to generate app flavors, it will automatically install ruby and xcodeproj if you don't have them installed
+
+## Check list
+- make flavors length customizable

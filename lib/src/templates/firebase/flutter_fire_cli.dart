@@ -48,7 +48,8 @@ class FlutterFireCli {
         m('Configuring Firebase project for' + ' $name'.bold() + '-${flavor}');
         final projectId = await getAppId(
           token: firebaseToken,
-          name: '${name}-${flavor}',
+          name:
+              '${name}-${flavor}', //TODO: validate flavor name to prevevt cases like AppName(Dev)-dev
           validator: (p0) {
             final valid = details.flavorConfigs!.where((element) =>
                 element.projectId == p0 && element.packageName == packageName);
@@ -314,6 +315,9 @@ class FlutterFireCli {
     required String oldPath,
     required String appPath,
   }) async {
+    if (!File(oldPath).existsSync()) {
+      return;
+    }
     if (!Directory(newPath).existsSync()) {
       Directory(newPath).createSync(recursive: true);
     }

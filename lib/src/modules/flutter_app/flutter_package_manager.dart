@@ -6,20 +6,22 @@ import 'package:flutter_genesis_cli/src/shared/models/flutter_app_details.dart';
 class FlutterPackageManager {
   static Future<void> getPackages(FlutterAppDetails flutterAppDetails) async {
     m('Setting up external packages');
-    final firebaseAppDetails = flutterAppDetails.firebaseAppDetails;
-    final path = flutterAppDetails.path;
-    List<String> packages = [
-      'flutter_svg',
-    ];
-    if (firebaseAppDetails != null) {
-      final authPackages =
-          _getAuthCorePackages(firebaseAppDetails.authenticationMethods, path);
+    if (flutterAppDetails.copyTempFiles) {
+      final firebaseAppDetails = flutterAppDetails.firebaseAppDetails;
+      final path = flutterAppDetails.path;
+      List<String> packages = [
+        'flutter_svg',
+      ];
+      if (firebaseAppDetails != null) {
+        final authPackages = _getAuthCorePackages(
+            firebaseAppDetails.authenticationMethods, path);
 
-      if (authPackages.isNotEmpty) {
-        packages.addAll(authPackages);
+        if (authPackages.isNotEmpty) {
+          packages.addAll(authPackages);
+        }
       }
+      await FlutterCli.pubAdd(packages, path);
     }
-    await FlutterCli.pubAdd(packages, path);
   }
 
   static List<String> _getAuthCorePackages(

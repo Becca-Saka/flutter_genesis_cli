@@ -149,7 +149,7 @@ fi
   }
 
   void _cleanUp() {
-    final dir = Directory(appDetails.path + '/.flutter_genesis');
+    final dir = Directory(appDetails.path + '/.flutter_genesis_cli');
     dir.deleteSync(recursive: true);
   }
 }
