@@ -13,6 +13,9 @@ import '../../shared/logger.dart';
 ///The Interact class is used to get interactive input from the user.
 ///it provides the [Input], [Select], and [MultiSelect] classes.
 ///
+
+final FlutterGenesisCli process = FlutterGenesisCli();
+
 class FlutterGenesisCli {
   String getInput({
     required String prompt,

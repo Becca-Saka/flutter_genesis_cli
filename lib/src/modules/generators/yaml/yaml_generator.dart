@@ -71,8 +71,10 @@ class YamlGenerator {
 
       final buildConfigFields = flavorModel.buildConfigFields
           ?.firstWhereOrNull((element) => element.flavor == flavor);
+
       final resValues = flavorModel.resValues
           ?.firstWhereOrNull((element) => element.flavor == flavor);
+
       final versionNameSuffix = flavorModel.versionNameSuffix?[flavor];
       final versionCode = flavorModel.versionCode?[flavor];
       final minSdkVersion = flavorModel.minSdkVersion?[flavor];

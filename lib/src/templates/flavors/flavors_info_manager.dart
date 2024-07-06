@@ -293,10 +293,27 @@ class FlavorInfoManager {
       prompt: 'Do you want to add resValues?',
       defaultValue: false,
     );
+    List<CustomResValueModel> customResValues =
+        _defaultResValues(selectedFlavors);
     if (response) {
-      return _collectResValuesByFlavor(selectedFlavors);
+      return _collectResValuesByFlavor(selectedFlavors)
+        ..addAll(customResValues);
     }
-    return null;
+
+    return customResValues;
+  }
+
+  List<CustomResValueModel> _defaultResValues(List<String> selectedFlavors) {
+    List<CustomResValueModel> customResValues = [];
+    m("start entering res value for each flavor, type 'd' or 'done' to skip at any point");
+    for (var flavor in selectedFlavors) {
+      customResValues.add(CustomResValueModel(
+        title: 'FLUTTER_TARGET',
+        flavor: '$flavor',
+        values: {"value": "lib/app/src/$flavor/main_${flavor}.dart"},
+      ));
+    }
+    return customResValues;
   }
 
   List<CustomResValueModel> _collectResValuesByFlavor(

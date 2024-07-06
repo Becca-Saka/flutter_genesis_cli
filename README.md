@@ -31,6 +31,10 @@ The Genesis of all complex apps.
 - [ ] add to existing project
 - [ ] VSCode extension
 - [ ] Deep links(Flavored)
+- [ ] Shorebird
+- [ ] Remote config
+- [ ] Desktop app
+- [ ] 
 
 ### Firebase
 - Login with google credentials in info.plist ??
