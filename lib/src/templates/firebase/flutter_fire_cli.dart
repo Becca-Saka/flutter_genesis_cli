@@ -129,10 +129,12 @@ class FlutterFireCli {
       final flavorModel = flutterAppDetails.flavorModel;
       final flavorConfigs = firebaseAppDetails.flavorConfigs;
       final appPath = flutterAppDetails.path;
+
       if (flavorModel != null && flavorConfigs != null) {
         for (int i = 0; i < flavorModel.environmentOptions.length; i++) {
           final flavor = flavorModel.environmentOptions[i];
           String args = ' --out=lib/app/src/$flavor/firebase_options.dart';
+
           args += ' --android-package-name=${flavorModel.packageId![flavor]}';
           args += ' --ios-bundle-id=${flavorModel.packageId![flavor]}';
           final firebaseFlavorConfig =
@@ -145,7 +147,7 @@ class FlutterFireCli {
             platforms: platforms,
             path: appPath,
           );
-
+          m('stopped zxc Configuring FlutterFire $i ');
           if (flutterAppDetails.platforms.contains(FlutterAppPlatform.ios)) {
             await _moveFiles(
               appPath: appPath,
@@ -169,10 +171,13 @@ class FlutterFireCli {
           }
         }
       } else {
+        final packageName = flutterAppDetails.packageName;
+        String args = ' --android-package-name=${packageName}';
+        args += ' --ios-bundle-id=${packageName}';
         await _configureFirebaseProject(
           projectId: firebaseAppDetails.projectId!,
           token: token,
-          args: '',
+          args: args,
           platforms: platforms,
           path: appPath,
         );

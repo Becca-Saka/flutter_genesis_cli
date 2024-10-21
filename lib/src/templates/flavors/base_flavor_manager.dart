@@ -22,7 +22,11 @@ class BaseFlavorManager {
   }
 
   Future<void> modifyNewDestinationFiles(FlutterAppDetails appDetails) async {
-    return await _flavorCreator.modifyNewDestinationFiles(
-        appDetails: appDetails);
+    await _flavorCreator.modifyNewDestinationFiles(appDetails: appDetails);
+    await removeRedundantFiles(appDetails);
+  }
+
+  Future<void> removeRedundantFiles(FlutterAppDetails appDetails) async {
+    return await _flavorCreator.deleteFiles(appDetails: appDetails);
   }
 }

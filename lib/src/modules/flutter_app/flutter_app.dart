@@ -140,10 +140,11 @@ class FlutterApp {
       prompt: 'What platform should your project be initialized for?',
       options: options.names,
       defaultValue: [
-        // FlutterAppPlatform.android.name,
+        FlutterAppPlatform.android.name,
         FlutterAppPlatform.ios.name,
       ],
     );
+
     if (answerIndexes.isEmpty) {
       e('Please select a platform');
       _getPlatformOptions();

@@ -310,7 +310,10 @@ class FlavorInfoManager {
       customResValues.add(CustomResValueModel(
         title: 'FLUTTER_TARGET',
         flavor: '$flavor',
-        values: {"value": "lib/app/src/$flavor/main_${flavor}.dart"},
+        values: {
+          "value": "lib/app/src/$flavor/main_${flavor}.dart",
+          "type": "string",
+        },
       ));
     }
     return customResValues;

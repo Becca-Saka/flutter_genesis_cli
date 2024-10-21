@@ -34,7 +34,8 @@ The Genesis of all complex apps.
 - [ ] Shorebird
 - [ ] Remote config
 - [ ] Desktop app
-- [ ] 
+- [ ] Modify pod file when firebase auth is added
+- [ ] Delete default debug, relase, and profile profiles
 
 ### Firebase
 - Login with google credentials in info.plist ??

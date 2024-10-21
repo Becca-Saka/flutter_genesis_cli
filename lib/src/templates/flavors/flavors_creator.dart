@@ -207,4 +207,19 @@ class FlavorCreator {
     }
     return content;
   }
+
+  Future<void> deleteFiles({required FlutterAppDetails appDetails}) async {
+    readFiles(
+      dirPath: '${appDetails.path}/ios/Flutter',
+      onFile: (entity, dir) async {
+        if (entity.existsSync()) {
+          final baseName = basename(entity.path);
+
+          if (baseName == 'Debug.xcconfig' || baseName == 'Debug.xcconfig') {
+            entity.deleteSync(recursive: true);
+          }
+        }
+      },
+    );
+  }
 }
